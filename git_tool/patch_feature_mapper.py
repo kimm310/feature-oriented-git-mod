@@ -4,9 +4,15 @@
 
 ## Feature assignment is based on the outermost feature annotation
 ## This concept can vary and potentially added by a custom function
+import subprocess
+from unidiff import PatchSet
 
 class Feature:
     name: str
+
+def get_diff_output():
+    result = subprocess.run(['git', 'diff'], stdout=subprocess.PIPE, text=True)
+    return PatchSet(result.stdout)
 
 def list_all_patches()->list:
     ...
