@@ -1,3 +1,4 @@
+from collections import defaultdict
 from pathlib import Path
 
 import typer
@@ -9,7 +10,7 @@ from git_tool.finding_features import FeatureMatches, get_features_for_diff
 
 # This is true as long as the project structure is not changed! Probably need to move this somewhere else
 current_directory = Path(__file__).parent
-repo_path = current_directory.parents[1] 
+repo_path = current_directory.parents[1]
 repo = Repo(repo_path)
 
 
@@ -22,7 +23,7 @@ def diff_by_feature():
     typer.echo("Output diff sorted by feature")
     for patch in result:
         print("Datei:", patch.path)
-        print ("Hunks:", len(patch))
+        print("Hunks:", len(patch))
 
 
 @app.command()
@@ -35,5 +36,11 @@ def status():
     diff = head_commit.diff(None, create_patch=True)
 
     mapped_to_feature = [(get_features_for_diff(d), d.a_path) for d in diff]
-    for m in filter(lambda x: len(x[0]) > 0, mapped_to_feature):
-        print(m[0][0].name,m[1])
+    features_dict = defaultdict(list)
+    for features, filename in mapped_to_feature:
+        for feature in features:
+            features_dict[feature.name].append(filename)
+    for feat_name, files in features_dict.items():
+        typer.echo(feat_name)
+        for file in files:
+            typer.echo(f"\t{file}")
