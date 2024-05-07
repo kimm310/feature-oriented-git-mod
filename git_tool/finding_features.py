@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 import re
 
+from git import Diff
+
 @dataclass
 class FeatureMatches:
     name: str
@@ -20,3 +22,10 @@ def extract_features(text: str) -> list[FeatureMatches]:
     
     return feature_list
 
+
+def get_features_for_diff(diff: Diff) -> list[FeatureMatches]:
+    str_diff = diff.diff.decode('utf-8') if isinstance(diff.diff, bytes) else diff.diff
+    features = extract_features(str_diff)
+    # features can also be assigned from the file itself as well as from file and folder mappings
+    # skip that for now
+    return features
