@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 import functools
 import logging
 import os
@@ -12,6 +13,15 @@ REPO_PATH = os.getenv("REPO_PATH")
 assert FEATURE_BRANCH_NAME is not None
 assert MAIN_BRANCH_NAME is not None
 assert REPO_PATH is not None
+
+
+@contextmanager
+def repo_context(repo_path=REPO_PATH):
+    repo = git.Repo(repo_path)
+    try:
+        yield repo
+    finally:
+        del repo
 
 
 def switch_to_feature_branch(
