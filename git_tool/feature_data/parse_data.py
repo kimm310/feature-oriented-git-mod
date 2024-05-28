@@ -25,6 +25,7 @@ if __name__ == "__main__":
 from git_tool.feature_data.branch_switching import (
     FEATURE_BRANCH_NAME,
     REPO_PATH,
+    repo_context,
     switch_to_feature_branch,
 )
 from git_tool.feature_data.fact_model import CumulatedFactsModel, FeatureFactModel
@@ -56,10 +57,13 @@ def get_metadata(
 
 @switch_to_feature_branch()
 def get_feature_log(feature_uuid: str):
+    commit_ids = []
     for f in _get_associated_files(feature_uuid=feature_uuid):
         with open(f, "r") as file:
             fact = FeatureFactModel.model_validate_json(file.read())
             logging.info("Retrieve fact for %s:\n\t %s", feature_uuid, fact)
+            commit_ids.append(fact.commit)
+    print(commit_ids)
 
 
 def _get_associated_files(
