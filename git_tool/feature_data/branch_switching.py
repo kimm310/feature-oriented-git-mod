@@ -68,10 +68,12 @@ def switch_to_feature_branch(
                 if repo.active_branch.name != current_branch.name:
                     repo.git.checkout(current_branch)
                     logging.debug("Switched back to branch: %s", current_branch)
+
                     if stash:
                         repo.git.stash("apply")
                         logging.debug("Applied stash")
                         repo.git.stash("drop")
+
                 else:
                     logging.debug("Branch never switched: %s", current_branch)
             return result

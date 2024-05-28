@@ -34,7 +34,7 @@ from git_tool.feature_data.fact_model import CumulatedFactsModel, FeatureFactMod
 @switch_to_feature_branch()
 def get_metadata(
     feature_uuid: str, ref_commit: Optional[str] = None
-) -> CumulatedFactsModel:
+) -> list[FeatureFactModel]:
     """Get all facts about the feature that are true for ref_commit. If ref_commit is not specified, use latest commit.
        Output describes cummulation of all facts and can be used as foundation to display feature evolution.
        Only facts that are merged in the main branch are used. Currently, the name must be main.
@@ -46,13 +46,13 @@ def get_metadata(
     Returns:
         CumulatedFactsModel: List of all facts sorted chronologically
     """
-
     assert Path(feature_uuid).is_dir()
-    for f in _get_associated_files(feature_uuid=feature_uuid, ref_commit=ref_commit):
-        logging.info("Working on file %s for feature %s", f.name, feature_uuid)
-        with open(f, "r") as cont:
-            contents = cont.readlines()
-            logging.debug(contents)
+    facts = [
+        FeatureFactModel.model_validate_json(open(f, "r").read())
+        for f in _get_associated_files(feature_uuid=feature_uuid, ref_commit=ref_commit)
+    ]
+    print(facts)
+    return facts
 
 
 @switch_to_feature_branch()
@@ -89,6 +89,6 @@ def _get_associated_files(
 
 
 if __name__ == "__main__":
-    # get_metadata("abc")
-    # logging.info("Get Metadata success")
+    get_metadata("abc")
+    logging.info("Get Metadata success")
     get_feature_log("abc")
