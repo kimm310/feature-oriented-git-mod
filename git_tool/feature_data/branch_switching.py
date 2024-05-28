@@ -24,6 +24,17 @@ def repo_context(repo_path=REPO_PATH):
         del repo
 
 
+def get_yes_no_input(prompt: str) -> bool:
+    while True:
+        response = input(prompt).strip().lower()
+        if response in ["yes", "y"]:
+            return True
+        elif response in ["no", "n"]:
+            return False
+        else:
+            print("Please enter 'yes' or 'no'.")
+
+
 def switch_to_feature_branch(
     repo_path: str = REPO_PATH, feature_branch_name: str = FEATURE_BRANCH_NAME
 ) -> Callable:
@@ -35,6 +46,17 @@ def switch_to_feature_branch(
             repo = git.Repo(repo_path)
             current_branch = repo.active_branch
             logging.debug("Current active branch: %s", current_branch)
+            if repo.is_dirty():
+                logging.warning(
+                    "Current changes are not staged. Please do before proceeding"
+                )
+                stash = get_yes_no_input("Do you want to stash?")
+                if not stash:
+                    raise
+                else:
+                    repo.git.stash(
+                        "save", "--include-untracked", "auto-stash before branch switch"
+                    )
             try:
                 repo.git.checkout(feature_branch_name)
                 logging.debug("Switched to branch: %s", feature_branch_name)
@@ -43,8 +65,15 @@ def switch_to_feature_branch(
                 logging.error("Error in function %s: %s", func.__name__, e)
                 raise
             finally:
-                repo.git.checkout(current_branch)
-                logging.debug("Switched back to branch: %s", current_branch)
+                if repo.active_branch.name != current_branch.name:
+                    repo.git.checkout(current_branch)
+                    logging.debug("Switched back to branch: %s", current_branch)
+                    if stash:
+                        repo.git.stash("apply")
+                        logging.debug("Applied stash")
+                        repo.git.stash("drop")
+                else:
+                    logging.debug("Branch never switched: %s", current_branch)
             return result
 
         return wrapper_switch
