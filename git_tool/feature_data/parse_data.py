@@ -1,9 +1,7 @@
 import os
-from pathlib import Path
-from typing import Any, Generator, Optional
+from typing import Generator, Optional
 import logging
 
-import git
 
 if __name__ == "__main__":
     import sys
@@ -24,11 +22,9 @@ if __name__ == "__main__":
 
 from git_tool.feature_data.repo_context import (
     FEATURE_BRANCH_NAME,
-    REPO_PATH,
     repo_context,
 )
 from git_tool.feature_data.fact_model import (
-    CumulatedFactsModel,
     FeatureFactModel,
 )
 
@@ -78,7 +74,8 @@ def _get_associated_files(
         Generator[str, None, None]: Iterator over all filenames associated with the feature
     """
     with repo_context() as repo:
-        # repo.git always allows to execute git commands, see https://gitpython.readthedocs.io/en/stable/tutorial.html#using-git-directly
+        # repo.git always allows to execute git commands, see
+        # https://gitpython.readthedocs.io/en/stable/tutorial.html#using-git-directly
         result: str = repo.git.ls_tree("-r", FEATURE_BRANCH_NAME, name_only=True)
         files: list[str] = (
             result.split()
