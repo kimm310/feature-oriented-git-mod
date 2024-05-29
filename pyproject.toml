@@ -4,3 +4,16 @@ testpaths = [
 ]
 addopts = "-s"
 pythonpath = ["."]
+
+[tool.black]
+line-length = 80
+target-version = ['py38']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # The following are specific to Black, you probably don't want those.
+  tests/data/
+  | profiling/
+  | scripts/generate_schema.py  # Uses match syntax
+)
+'''

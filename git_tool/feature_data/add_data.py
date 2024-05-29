@@ -12,7 +12,11 @@ if __name__ == "__main__":
         os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
     )
 
-from git_tool.feature_data.fact_model import ChangeDetail, ChangeType, FeatureFactModel
+from git_tool.feature_data.fact_model import (
+    ChangeDetail,
+    ChangeType,
+    FeatureFactModel,
+)
 
 
 def create_metadata_branch(repo_path: str, branch_name: str):
@@ -53,9 +57,7 @@ def add_fact_to_metadata_branch(
 
     # Git fast-import Vorbereitung
     author = Actor("Metadata Author", "author@example.com")
-    author_str = (
-        f"{author.name} <{author.email}> {int(datetime.now().timestamp())} +0000"
-    )
+    author_str = f"{author.name} <{author.email}> {int(datetime.now().timestamp())} +0000"
     commit_message = f"Add feature fact for commit {fact.commit}"
     branch_ref = f"refs/heads/{branch_name}"
 
