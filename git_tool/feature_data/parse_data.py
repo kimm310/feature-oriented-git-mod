@@ -22,22 +22,26 @@ if __name__ == "__main__":
         ],
     )
 
-from git_tool.feature_data.branch_switching import (
+from git_tool.feature_data.repo_context import (
     FEATURE_BRANCH_NAME,
     REPO_PATH,
     repo_context,
-    switch_to_feature_branch,
 )
-from git_tool.feature_data.fact_model import CumulatedFactsModel, FeatureFactModel
+from git_tool.feature_data.fact_model import (
+    CumulatedFactsModel,
+    FeatureFactModel,
+)
 
 
-@switch_to_feature_branch()
 def get_metadata(
     feature_uuid: str, ref_commit: Optional[str] = None
 ) -> list[FeatureFactModel]:
-    """Get all facts about the feature that are true for ref_commit. If ref_commit is not specified, use latest commit.
-       Output describes cummulation of all facts and can be used as foundation to display feature evolution.
-       Only facts that are merged in the main branch are used. Currently, the name must be main.
+    """
+    Get all facts about the feature that are true for ref_commit.
+    If ref_commit is not specified, use latest commit.
+    Output describes cummulation of all facts and can be used as foundation to display
+    feature evolution.
+    Only facts that are merged in the main branch are used. Currently, the name must be main.
 
     Args:
         feature_uuid (str): Feature Reference
@@ -46,46 +50,48 @@ def get_metadata(
     Returns:
         CumulatedFactsModel: List of all facts sorted chronologically
     """
-    assert Path(feature_uuid).is_dir()
     facts = [
-        FeatureFactModel.model_validate_json(open(f, "r").read())
+        _get_fact_from_featurefile(f)
         for f in _get_associated_files(feature_uuid=feature_uuid, ref_commit=ref_commit)
     ]
-    print(facts)
     return facts
 
 
-@switch_to_feature_branch()
 def get_feature_log(feature_uuid: str):
-    commit_ids = []
-    for f in _get_associated_files(feature_uuid=feature_uuid):
-        with open(f, "r") as file:
-            fact = FeatureFactModel.model_validate_json(file.read())
-            logging.info("Retrieve fact for %s:\n\t %s", feature_uuid, fact)
-            commit_ids.append(fact.commit)
-    print(commit_ids)
+    commit_ids = [fact.commit for fact in get_metadata(feature_uuid=feature_uuid)]
+    with repo_context() as repo:
+        print(repo.git.log(commit_ids))
 
 
 def _get_associated_files(
     feature_uuid: str, ref_commit: Optional[str] = None
-) -> Generator[Path, None, None]:
-    """Search for all files belonging to a certain feature_uuid. Possibly filter depending on input arguments
+) -> Generator[str, None, None]:
+    """Search for all files belonging to a certain feature_uuid. Assume that all files are
+    stored in the folder with the name feature_uuid
 
     Args:
         feature_uuid (str): Identifier for feature
-        ref_commit (Optional[str], optional): Last interesting commit. Defaults to None, behaves as if HEAD of main is used
+        ref_commit (Optional[str], optional): Last interesting commit. Defaults to None, behaves as
+                                                if HEAD of main is used
 
     Returns:
-        _type_: _description_
-
-    Yields:
-        Generator[Path, None, None]: _description_
+        Generator[str, None, None]: Iterator over all filenames associated with the feature
     """
-    assert git.Repo(REPO_PATH).active_branch.name == FEATURE_BRANCH_NAME
-    associated_files = Path(feature_uuid).rglob(
-        "**/*.json"
-    )  # TODO this can have a better filter
-    return associated_files
+    with repo_context() as repo:
+        # repo.git always allows to execute git commands, see https://gitpython.readthedocs.io/en/stable/tutorial.html#using-git-directly
+        result: str = repo.git.ls_tree("-r", FEATURE_BRANCH_NAME, name_only=True)
+        files: list[str] = (
+            result.split()
+        )  # outputs one string. Filenames are separated by whitespace-like delimiters
+        files = filter(lambda x: x.startswith(feature_uuid), files)
+        return files
+
+
+def _get_fact_from_featurefile(filename: str) -> FeatureFactModel:
+    with repo_context() as repo:
+        return FeatureFactModel.model_validate_json(
+            repo.git.show(f"{FEATURE_BRANCH_NAME}:{filename}")
+        )
 
 
 if __name__ == "__main__":
