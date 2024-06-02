@@ -22,6 +22,10 @@ class ChangeDetail(BaseModel):
     description: str
 
 
+class UpdateName(BaseModel):
+    feature_name: str
+
+
 class ConstraintDetail(BaseModel):
     constraint_type: ConstraintChangeType
     description: str
@@ -32,7 +36,7 @@ class FeatureFactModel(BaseModel):
     authors: List[str]
     date: datetime
     feature: str
-    changes: Union[List[ChangeDetail], List[ConstraintDetail]]
+    changes: List[Union[ChangeDetail, ConstraintDetail, UpdateName]]
 
     class Config:
         json_encoders = {
