@@ -38,7 +38,7 @@ def generate_file_path(fact: FeatureFactModel) -> str:
     feature_uuid = str(uuid.uuid4())
     timestamp = fact.date.timestamp()
     commit_id = fact.commit
-    fact_json = fact.json()
+    fact_json = fact.model_dump_json()
     sha1_hash = hashlib.sha1(fact_json.encode("utf-8")).hexdigest()
     return os.path.join(feature_uuid, str(int(timestamp)), commit_id, sha1_hash)
 

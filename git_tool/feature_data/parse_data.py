@@ -59,16 +59,19 @@ def _get_associated_files(
 
 
 def _get_fact_from_featurefile(filename: str) -> FeatureFactModel | None:
+    print("evaluating", filename)
     with repo_context() as repo:
         try:
+            print(type(repo.git.show(f"{FEATURE_BRANCH_NAME}:{filename}")))
             return FeatureFactModel.model_validate_json(
                 repo.git.show(f"{FEATURE_BRANCH_NAME}:{filename}")
             )
-        except ValidationError:
+        except ValidationError as e:
             print(
                 "Validation didn't work",
                 repo.git.show(f"{FEATURE_BRANCH_NAME}:{filename}"),
             )
+            print(e)
 
 
 def _get_feature_uuids() -> list[str]:
