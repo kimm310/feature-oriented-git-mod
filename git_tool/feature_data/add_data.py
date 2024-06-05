@@ -7,12 +7,13 @@ from datetime import datetime
 import hashlib
 import tempfile
 import uuid
+from git import Actor, Repo, Commit
+import sys
+import os
 from git import Actor, Repo
 
 
 if __name__ == "__main__":
-    import sys
-    import os
 
     sys.path.append(
         os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
