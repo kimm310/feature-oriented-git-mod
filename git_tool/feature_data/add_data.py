@@ -10,7 +10,6 @@ import uuid
 from git import Actor, Repo, Commit
 import sys
 import os
-from git import Actor, Repo
 
 
 if __name__ == "__main__":
@@ -49,13 +48,17 @@ def generate_fact_filename(fact: FeatureFactModel) -> str:
 
 
 def add_fact_to_metadata_branch(
-    fact: FeatureFactModel, branch_name: str = FEATURE_BRANCH_NAME
+    fact: FeatureFactModel,
+    branch_name: str = FEATURE_BRANCH_NAME,
+    commit_ref: Commit = None,
 ):
     commit_data = CommitData(
         branch_name=branch_name,
-        committer_name="test",
-        committer_email="test@abc.de",
-        message="Test",
+        committer_name=commit_ref.author.name if commit_ref is not None else "",
+        committer_email=(
+            commit_ref.author.email if commit_ref is not None else ""
+        ),
+        message=f"Generate fact for {str(commit_ref)}\n\nTouching features {fact.feature}",
         add_files=[
             CommitFileChange(
                 file_path=generate_fact_filename(
@@ -83,7 +86,7 @@ def add_fact_to_metadata_branch(
 if __name__ == "__main__":
     commit = add_fact_to_metadata_branch(
         fact=FeatureFactModel(
-            commit="test",
+            commit="39a22dc",
             authors=["Tabea"],
             date=datetime.now(),
             changes=[],
