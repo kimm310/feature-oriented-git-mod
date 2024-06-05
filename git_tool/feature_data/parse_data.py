@@ -70,7 +70,7 @@ def _get_feature_uuids() -> list[str]:
     Get all directories at the upper level of the Feature data branch
 
     Returns:
-        list[str]: _description_
+        list[str]: UUIDs of Features
     """
     with repo_context() as repo:
         folder_string = repo.git.ls_tree(
@@ -78,6 +78,10 @@ def _get_feature_uuids() -> list[str]:
         )
         folders = folder_string.split()
         return folders
+
+
+def get_name_for_uuid(uuid: str) -> str:
+    return uuid
 
 
 # def _resolve_feature_name(feature_uuid):
@@ -127,17 +131,18 @@ def get_feature_log(feature_uuid: str):
     commit_ids = [
         fact.commit for fact in get_metadata(feature_uuid=feature_uuid)
     ]
-    with repo_context() as repo:
-        print(
-            repo.git.log(
-                "--graph",
-                "--oneline",
-                "--all",
-                "--decorate",
-                "--color",
-                commit_ids,
-            )
-        )
+    print(commit_ids)
+    # with repo_context() as repo:
+    #     print(
+    #         repo.git.log(
+    #             "--graph",
+    #             "--oneline",
+    #             "--all",
+    #             "--decorate",
+    #             "--color",
+    #             commit_ids,
+    #         )
+    #     )
 
 
 if __name__ == "__main__":
