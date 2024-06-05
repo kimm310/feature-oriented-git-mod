@@ -59,7 +59,7 @@ if __name__ == "__main__":
         commit=str(commit),
         authors=[commit.author.name],
         date=datetime.now(),
-        feature=selected_uuid,
+        features=selected_uuid,
         changes=ChangeHolder(
             code_changes=[], constraint_changes=[], name_change=None
         ),

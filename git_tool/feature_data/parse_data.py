@@ -2,6 +2,8 @@ import os
 from typing import Generator, Optional
 import logging
 
+from pydantic import ValidationError
+
 
 if __name__ == "__main__":
     import sys
@@ -56,11 +58,17 @@ def _get_associated_files(
         return files
 
 
-def _get_fact_from_featurefile(filename: str) -> FeatureFactModel:
+def _get_fact_from_featurefile(filename: str) -> FeatureFactModel | None:
     with repo_context() as repo:
-        return FeatureFactModel.model_validate_json(
-            repo.git.show(f"{FEATURE_BRANCH_NAME}:{filename}")
-        )
+        try:
+            return FeatureFactModel.model_validate_json(
+                repo.git.show(f"{FEATURE_BRANCH_NAME}:{filename}")
+            )
+        except ValidationError:
+            print(
+                "Validation didn't work",
+                repo.git.show(f"{FEATURE_BRANCH_NAME}:{filename}"),
+            )
 
 
 def _get_feature_uuids() -> list[str]:
@@ -117,6 +125,7 @@ def get_metadata(
             feature_uuid=feature_uuid, ref_commit=ref_commit
         )
     ]
+    facts = [x for x in facts if x is not None]
     return facts
 
 

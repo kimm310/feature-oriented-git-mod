@@ -44,7 +44,7 @@ def generate_file_path(fact: FeatureFactModel) -> str:
 
 
 def generate_fact_filename(fact: FeatureFactModel) -> str:
-    return f"{fact.feature}/{fact.date.isoformat()}"
+    return f"{fact.features[0]}/{fact.date.isoformat()}"
 
 
 def add_fact_to_metadata_branch(
@@ -58,7 +58,7 @@ def add_fact_to_metadata_branch(
         committer_email=(
             commit_ref.author.email if commit_ref is not None else ""
         ),
-        message=f"Generate fact for {str(commit_ref)}\n\nTouching features {fact.feature}",
+        message=f"Generate fact for {str(commit_ref)}\n\nTouching features {fact.features}",
         add_files=[
             CommitFileChange(
                 file_path=generate_fact_filename(
