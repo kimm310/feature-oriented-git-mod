@@ -1,78 +1,67 @@
-from prompt_toolkit import PromptSession
-from prompt_toolkit.application import Application
-from prompt_toolkit.key_binding import KeyBindings
-from prompt_toolkit.layout import Layout, HSplit, Window
-from prompt_toolkit.widgets import TextArea
-import git
-
-# Git-Repository initialisieren
-repo = git.Repo(".")
-
-# Git-History abrufen
-commits = list(repo.iter_commits("main", max_count=100))
-
-# Erstelle eine Liste von Commit-Details
-commit_details = []
-for commit in commits:
-    details = {
-        "id": commit.hexsha,
-        "message": commit.message.strip(),
-        "date": commit.committed_datetime,
-        "files": commit.stats.files,
-    }
-    commit_details.append(details)
-
-# Initialisiere den Index für die Commit-Auswahl
-current_index = 0
-
-
-# Funktion zum Aktualisieren des Textes basierend auf dem aktuellen Index
-def get_commit_text(index):
-    commit = commit_details[index]
-    file_list = "\n".join(commit["files"].keys())
-    return (
-        f"Commit ID: {commit['id']}\n"
-        f"Date: {commit['date']}\n"
-        f"Message: {commit['message']}\n"
-        f"Files:\n{file_list}"
-    )
-
-
-# TextArea für die Anzeige der Commit-Details
-commit_text_area = TextArea(text=get_commit_text(current_index), read_only=True)
-
-# Key Bindings definieren
-kb = KeyBindings()
-
-
-@kb.add("up")
-def up(event):
-    global current_index
-    if current_index > 0:
-        current_index -= 1
-        commit_text_area.text = get_commit_text(current_index)
-
-
-@kb.add("down")
-def down(event):
-    global current_index
-    if current_index < len(commit_details) - 1:
-        current_index += 1
-        commit_text_area.text = get_commit_text(current_index)
-
-
-@kb.add("enter")
-def select_commit(event):
-    commit = commit_details[current_index]
-    print(f'Selected Commit ID: {commit["id"]}')
-    event.app.exit()
-
-
-# Layout und Anwendung erstellen
-layout = Layout(HSplit([commit_text_area]))
-
-application = Application(layout=layout, key_bindings=kb, full_screen=True)
-
-# Anwendung ausführen
 if __name__ == "__main__":
-    application.run()
+    import os
+    import sys
+
+    sys.path.append(
+        os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    )
+from datetime import datetime
+from git_tool.feature_data.add_data import add_fact_to_metadata_branch
+from git_tool.feature_data.fact_model import ChangeHolder, FeatureFactModel
+from git_tool.feature_data.repo_context import repo_context
+
+
+features = {"Feature A": "uuid-1", "Feature B": "uuid-2", "Feature C": "uuid-3"}
+
+from prompt_toolkit.shortcuts import radiolist_dialog
+from prompt_toolkit.completion import WordCompleter
+from prompt_toolkit import prompt
+
+
+def select_features(features):
+    choices = [(uuid, name) for name, uuid in features.items()]
+    selected = []
+
+    print("Select features (use space to toggle, enter to confirm):")
+    while True:
+        print(selected)
+        for i, (uuid, name) in enumerate(choices):
+            selected_marker = "[x]" if uuid in selected else "[ ]"
+            print(f"{i + 1}. {selected_marker} {name}")
+
+        selection = prompt("> ")
+
+        if selection.isdigit():
+            index = int(selection) - 1
+            if 0 <= index < len(choices):
+                uuid, name = choices[index]
+                if uuid in selected:
+                    selected.remove(uuid)
+                else:
+                    selected.append(uuid)
+        elif selection.lower() in ("done", "d"):
+            break
+        else:
+            print(
+                "Invalid selection. Enter the number of the feature to toggle selection, or 'done' to finish."
+            )
+
+    return selected
+
+
+if __name__ == "__main__":
+    commit_id = input("Enter Commit Id:")
+    with repo_context() as repo:
+        commit = repo.commit(commit_id)
+        print(commit, commit.message)
+    selected_uuid = select_features(features)
+    fact = FeatureFactModel(
+        commit=str(commit),
+        authors=[commit.author.name],
+        date=datetime.now(),
+        feature=selected_uuid,
+        changes=ChangeHolder(
+            code_changes=[], constraint_changes=[], name_change=None
+        ),
+    )
+    add_fact_to_metadata_branch(fact=fact, commit_ref=commit)
