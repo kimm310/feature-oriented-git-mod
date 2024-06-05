@@ -77,6 +77,8 @@ def add_fact_to_metadata_branch(
         with repo_context.repo_context() as repo:
             with open(temp_file_path, "r") as file:
                 repo.git.fast_import(istream=file)
+    except Exception as e:
+        print("error\n", e)
     finally:
         if temp_file_path:
             os.remove(temp_file_path)

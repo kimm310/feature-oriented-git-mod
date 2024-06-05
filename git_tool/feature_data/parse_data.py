@@ -144,17 +144,15 @@ def get_feature_log(feature_uuid: str):
         fact.commit for fact in get_metadata(feature_uuid=feature_uuid)
     ]
     print(commit_ids)
-    # with repo_context() as repo:
-    #     print(
-    #         repo.git.log(
-    #             "--graph",
-    #             "--oneline",
-    #             "--all",
-    #             "--decorate",
-    #             "--color",
-    #             commit_ids,
-    #         )
-    #     )
+    with repo_context() as repo:
+        print(
+            repo.git.log(
+                "--no-walk",
+                "--decorate",
+                "--color",
+                commit_ids,
+            )
+        )
 
 
 if __name__ == "__main__":
@@ -163,6 +161,7 @@ if __name__ == "__main__":
     # get_feature_log("abc")
     ids = _get_feature_uuids()
     print(ids)
+    feature = input(f"Select one of {ids}\n")
     # if len(ids) >= 1:
     #     _resolve_feature_name(ids[0])
-    get_feature_log("test")
+    get_feature_log(feature)
