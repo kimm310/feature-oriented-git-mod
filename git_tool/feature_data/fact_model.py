@@ -49,6 +49,3 @@ class FeatureFactModel(BaseModel):
         json_encoders = {
             datetime: lambda v: v.isoformat(),
         }
-
-
-class CumulatedFactsModel(BaseModel): ...

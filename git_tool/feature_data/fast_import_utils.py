@@ -6,31 +6,23 @@ Here, all the boilerplate code goes that creates the commit meta data and makes 
 that the content is added as expected
 """
 
+from pathlib import Path
 from git import GitCommandError
 from pydantic import BaseModel, EmailStr
 from typing import List
 from datetime import datetime
 
-
-if __name__ == "__main__":
-    import sys
-    import os
-
-    sys.path.append(
-        os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-    )
-
 from git_tool.feature_data import repo_context
 
 
-class CommitFileChange(BaseModel):
+class FastImportCommitData(BaseModel):
     """
     Datastructure to store the file and its expected contents.
-    Is used to acutally commit content
+
     """
 
     permissions: str = "644"  # all files have same permissions
-    file_path: str
+    file_path: str | Path
     content: str
 
     @property
@@ -38,13 +30,21 @@ class CommitFileChange(BaseModel):
         return len(self.content.encode("utf-8"))
 
 
-class CommitData(BaseModel):
+class AccumulatedCommitData(BaseModel):
+    """
+    Holds all meta information for the commit as well as
+    all files that should be added.
+    Because we are working with immutable filecontents
+    to ensure absence of merge conflicts, we only have
+    added contents.
+    """
+
     branch_name: str
     committer_name: str
     committer_email: EmailStr
     commit_datetime: datetime = datetime.now()
     message: str
-    add_files: List[CommitFileChange]
+    add_files: List[FastImportCommitData]
 
     @property
     def message_length(self) -> int:
@@ -73,8 +73,16 @@ class CommitData(BaseModel):
         Please note that this is not a fully viable fast import text strig, as it
         is missing the done tag.
 
+        It includes the following information, derived from the object:
+        - Commit reference: Specifies the branch the commit is for (usually automatically derived, metadata branch).
+        - Committer: The name and email of the committer along with the timestamp and timezone.
+        - Commit message length and message: The length of the commit message and the actual message.
+        - From: Indicates the parent commit reference (if it exists). Done by using the repo context and looking for the last commit on the branch
+        - File changes: Specifies the permissions, path, and content of the files being added/modified.
+
         Returns:
-            str: _description_
+            str: Fast-import compatible format. Still lacking info. Needs to be used with
+            to_fast_import_format
         """
         result = []
         result.append(f"commit refs/heads/{self.branch_name}")
@@ -100,28 +108,26 @@ class CommitData(BaseModel):
         return "\n".join(result)
 
 
-def to_fast_import_format(commits: list[CommitData]) -> str:
+def to_fast_import_format(commits: list[AccumulatedCommitData]) -> str:
     """
     This function converts multiple CommitData objects into a fast-import compatible format.
 
     Returns:
         str: Full fast import format string including the done tag.
     """
-    result = []
-    for commit in commits:
-        result.append(commit.to_partial_fast_import_format())
+    result = [commit.to_partial_fast_import_format() for commit in commits]
     result.append("done")
     return "\n".join(result) + "\n"
 
 
-# Beispielverwendung
+# Example Code. This cannot be executed in this context
 if __name__ == "__main__":
-    commit_change = CommitFileChange(
+    commit_change = FastImportCommitData(
         file_path="new2",
         content="This bug really sucks2",
     )
 
-    commit = CommitData(
+    commit = AccumulatedCommitData(
         branch_name="test",
         committer_name="Tabea",
         committer_email="agserm@gmail.com",

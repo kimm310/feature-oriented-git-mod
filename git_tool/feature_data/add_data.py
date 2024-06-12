@@ -3,56 +3,54 @@ This wraps the fast-import utils and writes the necessary code for determining a
 needed to add a FeatureFact to the respective metadata branch.
 """
 
-from datetime import datetime
 import hashlib
+from pathlib import Path
 import tempfile
-import uuid
-from git import Actor, Repo, Commit
-import sys
+from git import Commit
 import os
 
+from git_tool.feature_data.parse_data import get_uuid_for_featurename
+from git_tool.feature_data.repo_context import FEATURE_BRANCH_NAME, repo_context
 
-if __name__ == "__main__":
-
-    sys.path.append(
-        os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-    )
-
-
-from git_tool.feature_data.repo_context import FEATURE_BRANCH_NAME
-
-from git_tool.feature_data import repo_context
 from git_tool.feature_data.fast_import_utils import (
-    CommitData,
-    CommitFileChange,
+    AccumulatedCommitData,
+    FastImportCommitData,
     to_fast_import_format,
 )
 from git_tool.feature_data.fact_model import (
-    ChangeDetail,
-    ChangeType,
     FeatureFactModel,
 )
 
 
-def generate_file_path(fact: FeatureFactModel) -> str:
-    feature_uuid = str(uuid.uuid4())
-    timestamp = fact.date.timestamp()
-    commit_id = fact.commit
+def generate_fact_file_path(fact: FeatureFactModel) -> list[str]:
+    """
+    The fact file is stored in the folder <feature-uuid>/<commit-hash>/<fact-filename>
+    Each of these information is computed in this function
+
+    Args:
+        fact (FeatureFactModel): Information used to derive path
+
+    Returns:
+        list[str]: All paths where the associated fact needs to be stored
+    """
+    feature_uuids = [
+        get_uuid_for_featurename(feature) for feature in fact.features
+    ]
     fact_json = fact.model_dump_json()
     sha1_hash = hashlib.sha1(fact_json.encode("utf-8")).hexdigest()
-    return os.path.join(feature_uuid, str(int(timestamp)), commit_id, sha1_hash)
+    paths = [
+        Path(f"{uuid}/{fact.commit}/{fact.date.isoformat()}-{sha1_hash}")
+        for uuid in feature_uuids
+    ]
+    return paths
 
 
-def generate_fact_filename(fact: FeatureFactModel) -> str:
-    return f"{fact.features[0]}/{fact.date.isoformat()}"
-
-
-def add_fact_to_metadata_branch(
+def generate_fact_commit_data(
     fact: FeatureFactModel,
     branch_name: str = FEATURE_BRANCH_NAME,
     commit_ref: Commit = None,
 ):
-    commit_data = CommitData(
+    commit_data = AccumulatedCommitData(
         branch_name=branch_name,
         committer_name=commit_ref.author.name if commit_ref is not None else "",
         committer_email=(
@@ -60,7 +58,7 @@ def add_fact_to_metadata_branch(
         ),
         message=f"Generate fact for {str(commit_ref)}\n\nTouching features {fact.features}",
         add_files=[
-            CommitFileChange(
+            FastImportCommitData(
                 file_path=generate_fact_filename(
                     fact=fact,
                 ),
@@ -68,13 +66,22 @@ def add_fact_to_metadata_branch(
             )
         ],
     )
+    return commit_data
+
+
+def add_fact_to_metadata_branch(
+    fact: FeatureFactModel,
+    branch_name: str = FEATURE_BRANCH_NAME,
+    commit_ref: Commit = None,
+):
+    commit_data = generate_fact_commit_data(fact, branch_name, commit_ref)
     fast_import_content = to_fast_import_format(commits=[commit_data])
     try:
         with tempfile.NamedTemporaryFile(delete=False, mode="w") as temp_file:
             temp_file.write(fast_import_content)
             temp_file_path = temp_file.name
 
-        with repo_context.repo_context() as repo:
+        with repo_context() as repo:
             with open(temp_file_path, "r") as file:
                 repo.git.fast_import(istream=file)
     except Exception as e:
@@ -83,15 +90,3 @@ def add_fact_to_metadata_branch(
         if temp_file_path:
             os.remove(temp_file_path)
     return commit_data
-
-
-if __name__ == "__main__":
-    commit = add_fact_to_metadata_branch(
-        fact=FeatureFactModel(
-            commit="39a22dc",
-            authors=["Tabea"],
-            date=datetime.now(),
-            changes=[],
-            feature="test",
-        )
-    )

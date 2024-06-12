@@ -2,7 +2,7 @@ from contextlib import contextmanager
 import functools
 import logging
 import os
-from typing import Any, Callable
+from typing import Any, Callable, Generator, Iterable, List, Tuple
 from dotenv import load_dotenv
 import git
 
@@ -24,6 +24,31 @@ def repo_context(repo_path=REPO_PATH):
         yield repo
     finally:
         del repo
+
+
+@contextmanager
+def branch_folder_list(
+    branch=FEATURE_BRANCH_NAME, repo_path=REPO_PATH
+) -> Generator[Tuple[Iterable[str], git.Repo], None, None]:
+    """
+    Get all folders in a branch. Standard is to list all feature folders
+    in the featuer metadata branch
+
+    Args:
+        branch (str): Branch that is analysed for folders
+        repo_path (str): Path to git repo
+
+    Yields:
+        List[str]: Liste der Feature-Ordner.
+    """
+    with repo_context(repo_path) as repo:
+        try:
+            feature_folders = repo.git.ls_tree(
+                "-d", "--name-only", branch
+            ).split()
+            yield feature_folders, repo
+        finally:
+            pass
 
 
 def get_yes_no_input(prompt: str) -> bool:
