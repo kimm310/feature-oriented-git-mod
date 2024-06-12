@@ -255,6 +255,7 @@ def extract_facts_from_commit(commit: Commit) -> List[FeatureFactModel]:
                     )
             except:
                 print("error")
+    return facts
 
 
 def get_features_touched_by_commit(commit: Commit) -> Set[str]:

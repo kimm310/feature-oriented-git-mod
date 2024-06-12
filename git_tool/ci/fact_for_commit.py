@@ -10,9 +10,6 @@ from git_tool.feature_data.add_data import add_fact_to_metadata_branch
 from git_tool.feature_data.fact_model import ChangeHolder, FeatureFactModel
 from git_tool.feature_data.repo_context import repo_context
 
-
-features = {"Feature A": "uuid-1", "Feature B": "uuid-2", "Feature C": "uuid-3"}
-
 from prompt_toolkit import prompt
 
 
