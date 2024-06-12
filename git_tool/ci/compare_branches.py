@@ -97,8 +97,7 @@ if __name__ == "__main__":
         ],
     )
 
-    branch_name = "main"  # Beispielbranchname
+    branch_name = "inital-experiments"  # Beispielbranchname
+    other_commit = input("Get commit-like format")
     with repo_context() as repo:
-        commits = list(repo.iter_commits(branch_name))
-        for commit in commits:
-            display_results_and_check_warnings(commit, branch_name)
+        display_results_and_check_warnings(other_commit, branch_name)
