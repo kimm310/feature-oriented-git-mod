@@ -9,15 +9,20 @@ import tempfile
 from git import Commit
 import os
 
-from git_tool.feature_data.parse_data import get_uuid_for_featurename
-from git_tool.feature_data.repo_context import FEATURE_BRANCH_NAME, repo_context
+from git_tool.feature_data.read_feature_data.parse_data import (
+    get_uuid_for_featurename,
+)
+from git_tool.feature_data.models_and_context.repo_context import (
+    FEATURE_BRANCH_NAME,
+    repo_context,
+)
 
-from git_tool.feature_data.fast_import_utils import (
+from git_tool.feature_data.utils.fast_import_utils import (
     AccumulatedCommitData,
     FastImportCommitData,
     to_fast_import_format,
 )
-from git_tool.feature_data.fact_model import (
+from git_tool.feature_data.models_and_context.fact_model import (
     FeatureFactModel,
 )
 

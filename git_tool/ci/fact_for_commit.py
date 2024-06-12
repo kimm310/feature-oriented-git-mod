@@ -6,9 +6,14 @@ if __name__ == "__main__":
         os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
     )
 from datetime import datetime
-from git_tool.feature_data.add_data import add_fact_to_metadata_branch
-from git_tool.feature_data.fact_model import ChangeHolder, FeatureFactModel
-from git_tool.feature_data.repo_context import repo_context
+from git_tool.feature_data.add_feature_data.add_data import (
+    add_fact_to_metadata_branch,
+)
+from git_tool.feature_data.models_and_context.fact_model import (
+    ChangeHolder,
+    FeatureFactModel,
+)
+from git_tool.feature_data.models_and_context.repo_context import repo_context
 
 from prompt_toolkit import prompt
 

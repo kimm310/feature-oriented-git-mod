@@ -12,7 +12,7 @@ from pydantic import BaseModel, EmailStr
 from typing import List
 from datetime import datetime
 
-from git_tool.feature_data import repo_context
+from git_tool.feature_data.models_and_context import repo_context
 
 
 class FastImportCommitData(BaseModel):

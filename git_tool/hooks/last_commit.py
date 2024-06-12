@@ -9,7 +9,7 @@ if __name__ == "__main__":
         os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
     )
 
-from git_tool.feature_data import repo_context
+from git_tool.feature_data.models_and_context import repo_context
 
 
 def get_last_commit_message():

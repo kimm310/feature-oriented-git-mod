@@ -5,7 +5,10 @@ from typing import Optional
 from git import List, Union
 from pydantic import BaseModel, ValidationError
 
-from git_tool.feature_data.repo_context import FEATURE_BRANCH_NAME, repo_context
+from git_tool.feature_data.models_and_context.repo_context import (
+    FEATURE_BRANCH_NAME,
+    repo_context,
+)
 
 
 class ChangeType(str, Enum):

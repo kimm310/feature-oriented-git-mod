@@ -7,8 +7,13 @@ from datetime import datetime
 from typing import Generator, Optional
 import uuid
 
-from git_tool.feature_data.fact_model import get_fact_from_featurefile
-from git_tool.feature_data.repo_context import FEATURE_BRANCH_NAME, repo_context
+from git_tool.feature_data.models_and_context.fact_model import (
+    get_fact_from_featurefile,
+)
+from git_tool.feature_data.models_and_context.repo_context import (
+    FEATURE_BRANCH_NAME,
+    repo_context,
+)
 
 
 class FeatureNameNotFoundException(Exception): ...

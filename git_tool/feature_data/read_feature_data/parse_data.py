@@ -8,12 +8,12 @@ import logging
 
 from git import Commit
 
-from git_tool.feature_data.repo_context import (
+from git_tool.feature_data.models_and_context.repo_context import (
     FEATURE_BRANCH_NAME,
     branch_folder_list,
     repo_context,
 )
-from git_tool.feature_data.fact_model import (
+from git_tool.feature_data.models_and_context.fact_model import (
     FeatureFactModel,
 )
 
