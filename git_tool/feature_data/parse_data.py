@@ -1,28 +1,12 @@
-import os
+"""
+    All functions needed to parse data from feature files.
+
+"""
+
 from typing import Generator, List, Optional, Set, Tuple
 import logging
-import uuid
 
 from git import Commit
-from pydantic import ValidationError
-
-
-if __name__ == "__main__":
-    import sys
-    import os
-
-    sys.path.append(
-        os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-    )
-
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        handlers=[
-            logging.FileHandler("debug.log"),
-            logging.StreamHandler(),
-        ],
-    )
 
 from git_tool.feature_data.repo_context import (
     FEATURE_BRANCH_NAME,
@@ -32,48 +16,6 @@ from git_tool.feature_data.repo_context import (
 from git_tool.feature_data.fact_model import (
     FeatureFactModel,
 )
-
-
-def _get_associated_files(
-    feature_uuid: str, ref_commit: Optional[str] = None
-) -> Generator[str, None, None]:
-    """Search for all files belonging to a certain feature_uuid. Assume that all files are
-    stored in the folder with the name feature_uuid
-
-    Args:
-        feature_uuid (str): Identifier for feature
-        ref_commit (Optional[str], optional): Last interesting commit. Defaults to None, behaves as
-                                                if HEAD of main is used
-
-    Returns:
-        Generator[str, None, None]: Iterator over all filenames associated with the feature
-    """
-    with repo_context() as repo:
-        # repo.git always allows to execute git commands, see
-        # https://gitpython.readthedocs.io/en/stable/tutorial.html#using-git-directly
-        result: str = repo.git.ls_tree(
-            "-r", FEATURE_BRANCH_NAME, name_only=True
-        )
-        files: list[str] = (
-            result.split()
-        )  # outputs one string. Filenames are separated by whitespace-like delimiters
-        files = filter(lambda x: x.startswith(feature_uuid), files)
-        return files
-
-
-def _get_fact_from_featurefile(filename: str) -> FeatureFactModel | None:
-    print("evaluating", filename)
-    with repo_context() as repo:
-        try:
-            file_content = repo.git.show(f"{FEATURE_BRANCH_NAME}:{filename}")
-            return FeatureFactModel.model_validate_json(file_content)
-        except ValidationError as e:
-            print(
-                "Validation didn't work",
-            )
-            print(e)
-        finally:
-            return None
 
 
 def _get_feature_uuids() -> list[str]:
@@ -91,12 +33,6 @@ def _get_feature_uuids() -> list[str]:
         )
         folders = folder_string.split()
         return folders
-
-
-def get_featurename_from_uuid(uuid: uuid.UUID) -> str: ...
-
-
-def get_uuid_for_featurename(name: str) -> uuid.UUID: ...
 
 
 def get_metadata(
