@@ -13,8 +13,6 @@ from git_tool.feature_data.repo_context import repo_context
 
 features = {"Feature A": "uuid-1", "Feature B": "uuid-2", "Feature C": "uuid-3"}
 
-from prompt_toolkit.shortcuts import radiolist_dialog
-from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit import prompt
 
 
