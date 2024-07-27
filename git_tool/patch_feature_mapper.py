@@ -13,7 +13,7 @@ class Feature:
 
 
 def get_diff_output():
-    result = subprocess.run(["git", "diff"], stdout=subprocess.PIPE, text=True)
+    result = subprocess.run(["git", "diff"], stdout=subprocess.PIPE, text=True, check=True)
     return PatchSet(result.stdout)
 
 
