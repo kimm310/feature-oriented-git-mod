@@ -1,7 +1,10 @@
+"""
+Define the git subcommands that are available for users.
+This contains the logic flow for the major building blocks of the application
+"""
 from collections import defaultdict
 from typing import List
 import typer
-from rich import print as pprint
 
 from git_tool.feature_data.git_status_per_feature import (
     get_features_for_file,
@@ -69,6 +72,7 @@ def feature_add(
         [],
         help='''Specify the set of files you want to annotate. Note that files listet that are not staged will be added to the staging area''',
     ),
+    add_annotations:bool = typer.Option(False, help="Sets whether the changes will be grouped with feature annotations")
 ):
     """
     Stages changes for a specific feature.
