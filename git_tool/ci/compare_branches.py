@@ -9,10 +9,11 @@ if __name__ == "__main__":
     )
 
 from git import Commit, Tuple
+
+from git_tool.feature_data.models_and_context.repo_context import repo_context
 from git_tool.feature_data.read_feature_data.parse_data import (
     get_features_touched_by_commit,
 )
-from git_tool.feature_data.models_and_context.repo_context import repo_context
 
 
 def get_feature_sets_for_branch(branch_name: str) -> List[Set[str]]:

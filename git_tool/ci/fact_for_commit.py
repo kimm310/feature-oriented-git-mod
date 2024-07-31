@@ -6,6 +6,9 @@ if __name__ == "__main__":
         os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
     )
 from datetime import datetime
+
+from prompt_toolkit import prompt
+
 from git_tool.feature_data.add_feature_data.add_data import (
     add_fact_to_metadata_branch,
 )
@@ -14,8 +17,6 @@ from git_tool.feature_data.models_and_context.fact_model import (
     FeatureFactModel,
 )
 from git_tool.feature_data.models_and_context.repo_context import repo_context
-
-from prompt_toolkit import prompt
 
 
 def select_features(features):
@@ -54,12 +55,13 @@ if __name__ == "__main__":
     with repo_context() as repo:
         commit = repo.commit(commit_id)
         print(commit, commit.message)
-    selected_uuid = select_features(features)
+    # selected_uuid = select_features(features)
+    features = ["test"]
     fact = FeatureFactModel(
         commit=str(commit),
         authors=[commit.author.name],
         date=datetime.now(),
-        features=selected_uuid,
+        features=features,
         changes=ChangeHolder(
             code_changes=[], constraint_changes=[], name_change=None
         ),
