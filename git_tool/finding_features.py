@@ -1,5 +1,5 @@
-from dataclasses import dataclass
 import re
+from dataclasses import dataclass
 
 from git import Diff
 
@@ -16,7 +16,9 @@ def extract_features(text: str) -> list[FeatureMatches]:
 
     @param text: content from which features are extracted
     """
-    # regex for regex101.com &begin\[(?<FeatureName>.*?)\](?<FeatureCode>.*?)&end\[\1\] with flags gms
+    # regex for regex101.com
+    # &begin\[(?<FeatureName>.*?)\](?<FeatureCode>.*?)&end\[\1\]
+    # with flags gms
     feature_pattern = r"&begin\[(?P<FeatureName>.*?)\](?P<FeatureCode>.*?)&end\[(?P=FeatureName)\]"
     feature_matches = re.finditer(
         pattern=feature_pattern, string=text, flags=re.DOTALL
