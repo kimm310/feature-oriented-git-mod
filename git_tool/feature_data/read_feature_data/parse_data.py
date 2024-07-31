@@ -3,18 +3,16 @@
 
 """
 
-from typing import Generator, List, Optional, Set, Tuple
 import logging
+from typing import Generator, List, Optional, Set, Tuple
 
 from git import Commit
 
+from git_tool.feature_data.models_and_context.fact_model import FeatureFactModel
 from git_tool.feature_data.models_and_context.repo_context import (
     FEATURE_BRANCH_NAME,
     branch_folder_list,
     repo_context,
-)
-from git_tool.feature_data.models_and_context.fact_model import (
-    FeatureFactModel,
 )
 
 

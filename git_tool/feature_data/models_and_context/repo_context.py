@@ -1,14 +1,12 @@
-from contextlib import contextmanager
-import functools
-import logging
 import os
-from typing import Any, Callable, Generator, Iterable, List, Tuple
-from dotenv import load_dotenv
-import git
+from contextlib import contextmanager
+from pathlib import Path
+from typing import Generator, Iterable, Tuple
 
-load_dotenv(
-    "/home/tabea/Uni/worktree/inital-experiments/git_tool/feature_data/.env"
-)
+import git
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).parents[1].joinpath(".env").absolute())
 FEATURE_BRANCH_NAME = os.getenv("BRANCH_NAME")
 MAIN_BRANCH_NAME = os.getenv("MAIN_BRANCH_NAME")
 REPO_PATH = os.getenv("REPO_PATH")
@@ -28,24 +26,26 @@ def repo_context(repo_path=REPO_PATH):
 
 @contextmanager
 def branch_folder_list(
-    branch=FEATURE_BRANCH_NAME, repo_path=REPO_PATH
-) -> Generator[Tuple[Iterable[str], git.Repo], None, None]:
+    branch: str = FEATURE_BRANCH_NAME, repo_path: str = REPO_PATH
+) -> Generator[Tuple[Iterable[Path], git.Repo], None, None]:
     """
     Get all folders in a branch. Standard is to list all feature folders
-    in the featuer metadata branch
+    in the feature metadata branch.
 
     Args:
         branch (str): Branch that is analysed for folders
         repo_path (str): Path to git repo
 
     Yields:
-        List[str]: Liste der Feature-Ordner.
+        Tuple[Iterable[Path], git.Repo]: A tuple where the first element is an
+        iterable of feature folder paths as pathlib.Path objects, and the second element is the git repository object.
     """
     with repo_context(repo_path) as repo:
         try:
             feature_folders = repo.git.ls_tree(
                 "-d", "--name-only", branch
             ).split()
+            feature_folders = map(Path, feature_folders)
             yield feature_folders, repo
         finally:
             pass

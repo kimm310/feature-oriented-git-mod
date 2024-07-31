@@ -6,11 +6,12 @@ Here, all the boilerplate code goes that creates the commit meta data and makes 
 that the content is added as expected
 """
 
+from datetime import datetime
 from pathlib import Path
+from typing import List
+
 from git import GitCommandError
 from pydantic import BaseModel, EmailStr
-from typing import List
-from datetime import datetime
 
 from git_tool.feature_data.models_and_context import repo_context
 

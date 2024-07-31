@@ -4,26 +4,24 @@ needed to add a FeatureFact to the respective metadata branch.
 """
 
 import hashlib
-from pathlib import Path
-import tempfile
-from git import Commit
 import os
+import tempfile
+from pathlib import Path
 
-from git_tool.feature_data.read_feature_data.parse_data import (
-    get_uuid_for_featurename,
-)
+from git import Commit
+
+from git_tool.feature_data.models_and_context.fact_model import FeatureFactModel
 from git_tool.feature_data.models_and_context.repo_context import (
     FEATURE_BRANCH_NAME,
     repo_context,
 )
-
+from git_tool.feature_data.read_feature_data.parse_data import (
+    get_uuid_for_featurename,
+)
 from git_tool.feature_data.utils.fast_import_utils import (
     AccumulatedCommitData,
     FastImportCommitData,
     to_fast_import_format,
-)
-from git_tool.feature_data.models_and_context.fact_model import (
-    FeatureFactModel,
 )
 
 
@@ -79,6 +77,14 @@ def add_fact_to_metadata_branch(
     branch_name: str = FEATURE_BRANCH_NAME,
     commit_ref: Commit = None,
 ):
+    """
+    Create a new commit by creating a temporary file using the fast-import format.
+    The commit data is derived from the fact information.
+    :param fact Structured information used to generate the commit content
+    :param branch-name reference for git which is used to determine the branch that a commit is added to
+    :param commit_ref Optional parameter that can include more informatino for the commit content, specifying which commit the metadata describes
+
+    """
     commit_data = generate_fact_commit_data(fact, branch_name, commit_ref)
     fast_import_content = to_fast_import_format(commits=[commit_data])
     try:

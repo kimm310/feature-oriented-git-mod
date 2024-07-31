@@ -1,10 +1,11 @@
 from git import Commit
-from git_tool.feature_data.read_feature_data.parse_data import (
-    _get_fact_from_featurefile,
-)
+
 from git_tool.feature_data.models_and_context.repo_context import (
     FEATURE_BRANCH_NAME,
     repo_context,
+)
+from git_tool.feature_data.read_feature_data.parse_data import (
+    _get_fact_from_featurefile,
 )
 from git_tool.feature_data.uuid_name_mapping import get_uuid_for_featurename
 

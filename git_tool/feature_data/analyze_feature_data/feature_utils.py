@@ -3,9 +3,9 @@ All functions working on feature-uuids that help to get data in a structured for
 based on a given feature
 """
 
+import uuid
 from datetime import datetime
 from typing import Generator, Optional
-import uuid
 
 from git_tool.feature_data.models_and_context.fact_model import (
     get_fact_from_featurefile,
