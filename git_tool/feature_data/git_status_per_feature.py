@@ -1,4 +1,4 @@
-from collections import namedtuple
+from collections import defaultdict, namedtuple
 from typing import  List, TypedDict
 from git_tool.feature_data.file_based_git_info import get_commits_for_file
 from git_tool.feature_data.models_and_context.repo_context import (
@@ -36,23 +36,20 @@ def get_files_by_git_change() -> GitChanges:
     with repo_context() as repo:
         result = repo.git.status("-s")
         lines = list(map(convert_to_status_entry, result.split("\n")))
-
         changes: GitChanges = {
-            "staged_files": [
-                entry.file_path
-                for entry in lines
-                if entry.status[0] != " " and entry.status != "??"
-            ],
-            "unstaged_files": [
-                entry.file_path
-                for entry in lines
-                if entry.status[1] != " " and entry.status != "??"
-            ],
-            "untracked_files": [
-                entry.file_path for entry in lines if entry.status == "??"
-            ],
+            "staged_files": [],
+            "unstaged_files": [],
+            "untracked_files": []
         }
-        return changes
+        for entry in lines:
+            if entry.status[0] != " " and entry.status != "??":
+                changes["staged_files"].append(entry.file_path)
+            if entry.status[1] != " " and entry.status != "??":
+                changes["unstaged_files"].append(entry.file_path)
+            if entry.status == "??":
+                changes["untracked_files"].append(entry.file_path)
+        
+        return dict(changes)
 
 
 def find_annotations_for_file(file: str):

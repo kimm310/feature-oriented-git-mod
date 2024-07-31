@@ -42,12 +42,21 @@ def feature_status():
             for file in files:
                 print(f"\t\t{file}")
 
-    print_changes("Feature changes to be committed", changes["staged_files"])
+    printed = False
+    if len(changes["staged_files"]) > 0:
+        printed=True
+        print_changes("Feature changes to be committed", changes["staged_files"])
 
-    print_changes(
-        "Feature changes not staged for commit", changes["unstaged_files"]
-    )
-    print_changes("", (changes["untracked_files"]))
+    if len(changes["unstaged_files"]) > 0:
+        printed=True
+        print_changes(
+            "Feature changes not staged for commit", changes["unstaged_files"]
+        )
+    if len(changes["untracked_files"]) > 0:
+        printed=True
+        print_changes("", (changes["untracked_files"]))
+    if not printed:
+        print("No changes.")
 
 
 @app.command()
