@@ -50,6 +50,10 @@ def branch_folder_list(
         finally:
             pass
 
+def get_current_branch()->str:
+    with repo_context() as repo:
+        return repo.active_branch.name
+
 
 def get_yes_no_input(prompt: str) -> bool:
     while True:
