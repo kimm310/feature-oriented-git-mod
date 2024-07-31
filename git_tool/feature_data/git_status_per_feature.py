@@ -1,5 +1,6 @@
 from collections import namedtuple
-from typing import Dict, List, TypedDict
+from typing import  List, TypedDict
+from git_tool.feature_data.file_based_git_info import get_commits_for_file
 from git_tool.feature_data.models_and_context.repo_context import (
     branch_folder_list,
     repo_context,
@@ -7,6 +8,9 @@ from git_tool.feature_data.models_and_context.repo_context import (
 
 
 class GitChanges(TypedDict):
+    """
+    List files by git status
+    """
     staged_files: List[str]
     unstaged_files: List[str]
     untracked_files: List[str]
@@ -51,36 +55,47 @@ def get_files_by_git_change() -> GitChanges:
         return changes
 
 
+def find_annotations_for_file(file: str):
+    """
+    Parse file for comment-based feature hints and search for file and folder annotations.
+    This makes use of the feature-annotation system. Not documented further here.
+    """
+    raise NotImplementedError
+
+
 def get_features_for_file(
     file_path: str, use_annotations: bool = False
 ) -> List[str]:
     """
     Retrieves features for a given file.
-    Annotations makes use of feature annotations only, searching for folder, file and line annotations.
-    Otherwise, all commits that touch the selected file are used to search for the associated feature.
-
+    
+    This function determines which features are associated with a specific file 
+    in a Git repository. It can use either feature annotations or the commit history 
+    to determine these associations. 
+    
+    If the `use_annotations` flag is set to True, the function searches for annotations 
+    in the folder, file, and line levels. Otherwise, it examines the commit history to 
+    identify features associated with the file.
+    
     Args:
-        file_path (str): The path to the file.
-
+        file_path (str): The path to the file whose features are to be retrieved.
+        use_annotations (bool): Flag indicating whether to use annotations for 
+                                determining features. Defaults to False.
+                                
     Returns:
-        List[str]: A list of features associated with the file.
+        List[str]: A list of features associated with the file. If no features are 
+                   found, an empty list is returned.
     """
     features = []
     if use_annotations:
-        # TODO implement search for annotations
-        return []
-    else:
-        # Get all commits touching this feature
-        # Iterate through all feature folders and check if they contain the commit
-        with repo_context() as repo:
-            commits = repo.git.log("--pretty=format:%H", "--", file_path).split(
-                "\n"
-            )
-        with branch_folder_list() as feature_folders:
-            for commit in commits:
-                for feature in feature_folders:
-                    if commit_in_feature_folder(commit, feature):
-                        features.append(get_feature_name_from_folder(feature))
+        features = find_annotations_for_file(file_path)
+        return features
+    commits = get_commits_for_file(file_name=file_path, branch_name=None)
+    with branch_folder_list() as feature_folders:
+        for commit in commits:
+            for feature in feature_folders:
+                if commit_in_feature_folder(commit, feature):
+                    features.append(get_feature_name_from_folder(feature))
     return features
 
 
@@ -99,7 +114,7 @@ def commit_in_feature_folder(commit: str, feature_folder: str) -> bool:
         try:
             repo.git.rev_list("--objects", "--all", feature_folder, grep=commit)
             return True
-        except:
+        except Exception as e: # TODO find the exception raised here
             return False
 
 
