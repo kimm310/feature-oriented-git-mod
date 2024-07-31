@@ -14,3 +14,4 @@ pip install -r requirements.dev.txt # for dev purposes
 ```
 python -m git_tool
 ```
+The entry point of the code is specified in the `__main__.py` file
