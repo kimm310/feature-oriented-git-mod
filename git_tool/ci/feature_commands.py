@@ -10,7 +10,7 @@ from git_tool.feature_data.git_status_per_feature import (
     get_features_for_file,
     get_files_by_git_change,
 )
-from git_tool.feature_data.models_and_context.feature_state import read_staged_featureset, write_staged_featureset
+from git_tool.feature_data.models_and_context.feature_state import read_staged_featureset, reset_staged_featureset, write_staged_featureset
 from git_tool.feature_data.models_and_context.repo_context import repo_context
 
 app = typer.Typer()
@@ -99,6 +99,12 @@ def feature_add(
                     print(f"Error staging file {file}: {e}")
     else:
         print("no specific option selected")
+        return
+    print("Check if there are staged files")
+    changes = get_files_by_git_change()
+    if len(changes["staged_files"]) == 0:
+        print("No staged changes, so no feature information to add")
+        reset_staged_featureset()
         return
     print(f"Adding feature information {feature_names} to staged files")
     write_staged_featureset(features=feature_names)
