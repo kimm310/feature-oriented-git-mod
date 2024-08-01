@@ -10,6 +10,8 @@ from git_tool.feature_data.git_status_per_feature import (
     get_features_for_file,
     get_files_by_git_change,
 )
+from git_tool.feature_data.models_and_context.feature_state import read_staged_featureset, write_staged_featureset
+from git_tool.feature_data.models_and_context.repo_context import repo_context
 
 app = typer.Typer()
 
@@ -64,34 +66,50 @@ def feature_status():
 
 @app.command()
 def feature_add(
-    feature_name: str,
+    feature_names: list[str],
     from_annotations: bool = typer.Option(
         False, help="Stage changes based on feature annotations"
     ),
-    files: list[str] = typer.Option(
+    from_files: list[str] = typer.Option(
         [],
         help='''Specify the set of files you want to annotate. Note that files listet that are not staged will be added to the staging area''',
     ),
+    from_staged: bool = typer.Option(False, help="Use the staged files only to add feature information"),
     add_annotations:bool = typer.Option(False, help="Sets whether the changes will be grouped with feature annotations")
 ):
     """
     Stages changes for a specific feature.
     """
-    print(
-        f"Executing feature-add for {feature_name} with from_annotations={from_annotations}"
-    )
-    if files.__len__ > 0:
-        print(f"Annotating files {files}")
-        print("Checking for unstaged files")
-        print("Staging files")
-        return
+    if isinstance(feature_names, str):
+        feature_names = [feature_names]
     if from_annotations:
-        print("Searching for features in the current code")
+        print("use annotations")
+    elif from_staged:
+        print("use staged files")
+        
+    elif from_files:
+        print("use files")
+        # stage all unstaged files
+        with repo_context() as repo:
+            for file in from_files:
+                try:
+                    repo.git.add(file)
+                    print(f"Staged file: {file}")
+                except Exception as e:
+                    print(f"Error staging file {file}: {e}")
+    else:
+        print("no specific option selected")
+        return
+    print(f"Adding feature information {feature_names} to staged files")
+    write_staged_featureset(features=feature_names)
+    if add_annotations:
+        print("Not adding annotations, not implemented yet")
 
 
 @app.command()
 def feature_info(
     all: bool = typer.Option(False, help="Get all features"),
+    currently_staged:bool = typer.Option(False, help="List all features that are touched by staged changes"),
     feature: str = typer.Option(None, help="Inspect a particular feature"),
     authors: bool = typer.Option(
         False, help="Include authors in the inspection"
@@ -109,6 +127,9 @@ def feature_info(
     """
     Inspects feature information.
     """
+    if currently_staged:
+        print(f"Currently staged {read_staged_featureset()}")
+        return
     print(
         f"Executing feature-info with all={all}, feature={feature}, authors={authors}, files={files}, tangled_feature={tangled_feature}, dependencies={dependencies}, updatable={updatable}, branch={branch}"
     )

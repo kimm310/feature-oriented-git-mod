@@ -8,11 +8,19 @@ from typing import List
 from git_tool.feature_data.models_and_context.repo_context import repo_context
 
 
-FEATUREINFO_FILE = Path(".git/FEATUREINFO")
 
 def get_feature_file()-> Path:
+    """
+    Depending on whether the repo is a git worktree or a usual git repo, the resolution of the .git folder
+    works differently
+    """
+    featureinfo_filename = Path(".git/FEATUREINFO")
     with repo_context() as repo:
-        return Path(repo.git.rev_parse("--git-dir")).resolve().joinpath(FEATUREINFO_FILE)
+        git_repo=  Path(repo.git.rev_parse("--show-toplevel")).resolve().joinpath(".git")
+        if git_repo.is_file():
+            return Path(repo.git.rev_parse("--show-toplevel")).resolve().joinpath(".FEATUREINFO")
+        else:
+            git_repo.joinpath("FEATUREINFO")
 
 def read_staged_featureset() -> List[str]:
     """
@@ -21,12 +29,12 @@ def read_staged_featureset() -> List[str]:
     Returns:
         List[str]: A list of staged features.
     """
-    if not FEATUREINFO_FILE.exists():
+    feature_file = get_feature_file()
+    if not feature_file.exists():
         return []
-    
-    with FEATUREINFO_FILE.open(mode="r") as f:
+    print(feature_file.is_file(), feature_file.is_dir())
+    with feature_file.open(mode="r", encoding="utf-8") as f:
         features = [line.strip() for line in f.readlines()]
-    
     return features
 
 def write_staged_featureset(features: List[str]):
@@ -36,7 +44,9 @@ def write_staged_featureset(features: List[str]):
     Args:
         features (List[str]): A list of features to be written.
     """
-    with FEATUREINFO_FILE.open(mode="w") as f:
+    if not get_feature_file().exists():
+        get_feature_file().touch()
+    with get_feature_file().open(mode="w+", encoding="utf-8") as f:
         for feature in features:
             f.write(f"{feature}\n")
 
@@ -44,5 +54,6 @@ def reset_staged_featureset():
     """
     Reset the FEATUREINFO file by clearing its content.
     """
-    if FEATUREINFO_FILE.exists():
-        FEATUREINFO_FILE.unlink()
+    feature_file = get_feature_file()
+    if feature_file.exists():
+        feature_file.unlink()
