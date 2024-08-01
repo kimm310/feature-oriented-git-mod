@@ -93,8 +93,13 @@ def feature_add(
         with repo_context() as repo:
             for file in from_files:
                 try:
+                    initial_diff = repo.git.diff('--cached')
                     repo.git.add(file)
                     print(f"Staged file: {file}")
+                    final_diff = repo.git.diff('--cached')
+                    if initial_diff == final_diff:
+                        print("No changes were made to the staging area. Aborting.")
+                        return
                 except Exception as e:
                     print(f"Error staging file {file}: {e}")
     else:
