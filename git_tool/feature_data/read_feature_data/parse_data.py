@@ -116,6 +116,7 @@ def get_feature_sets_for_branch(branch_name: str) -> List[Set[str]]:
         feature_sets = [
             get_features_touched_by_commit(commit) for commit in commits
         ]
+    # TODO optimize: for each feature check for each commit if that commit is on the branch. else there will be redundant checks
     return feature_sets
 
 

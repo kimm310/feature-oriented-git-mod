@@ -5,17 +5,21 @@ This contains the logic flow for the major building blocks of the application
 from collections import defaultdict
 from typing import List
 import typer
-
 from git_tool.feature_data.git_status_per_feature import (
     get_features_for_file,
     get_files_by_git_change,
 )
 from git_tool.feature_data.models_and_context.feature_state import read_staged_featureset, reset_staged_featureset, write_staged_featureset
 from git_tool.feature_data.models_and_context.repo_context import repo_context
+from git_tool.feature_data.read_feature_data.parse_data import _get_feature_uuids
 
 app = typer.Typer()
 
 WITHOUT_FEATURE = "Without Feature"
+
+def print_list_w_indent(stuff: list, indent: int = 1) -> None:
+    for item in stuff:
+        print('\t' * indent + item)
 
 
 @app.command()
@@ -140,8 +144,8 @@ def feature_info(
         f"Executing feature-info with all={all}, feature={feature}, authors={authors}, files={files}, updatable={updatable}, branch={branch}"
     )
     if all:
-        # TODO print all features
-        raise NotImplementedError
+        print("All features in project")
+        print_list_w_indent(_get_feature_uuids())
     elif feature:
         print(f"Collecting information for feautre {feature}")
         raise NotImplementedError
