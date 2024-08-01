@@ -84,9 +84,10 @@ def feature_add(
         feature_names = [feature_names]
     if from_annotations:
         print("use annotations")
+        raise NotImplementedError
     elif from_staged:
         print("use staged files")
-        
+        raise NotImplementedError
     elif from_files:
         print("use files")
         # stage all unstaged files
@@ -126,14 +127,8 @@ def feature_info(
         False, help="Include authors in the inspection"
     ),
     files: bool = typer.Option(False, help="Include files in the inspection"),
-    tangled_feature: bool = typer.Option(
-        False, help="Include tangled features in the inspection"
-    ),
-    dependencies: bool = typer.Option(
-        False, help="Include dependencies in the inspection"
-    ),
-    updatable: bool = typer.Option(False, help="Show updatable features"),
-    branch: str = typer.Option(None, help="Specify branch for inspection"),
+    updatable: bool = typer.Option(False, help="Display whether the feature can be updated and what update options there are"),
+    branch: str = typer.Option(None, help="Specify branch for inspection that should be compared to the currently checked out branch"),
 ):
     """
     Inspects feature information.
@@ -142,8 +137,21 @@ def feature_info(
         print(f"Currently staged {read_staged_featureset()}")
         return
     print(
-        f"Executing feature-info with all={all}, feature={feature}, authors={authors}, files={files}, tangled_feature={tangled_feature}, dependencies={dependencies}, updatable={updatable}, branch={branch}"
+        f"Executing feature-info with all={all}, feature={feature}, authors={authors}, files={files}, updatable={updatable}, branch={branch}"
     )
+    if all:
+        # TODO print all features
+        raise NotImplementedError
+    elif feature:
+        print(f"Collecting information for feautre {feature}")
+        raise NotImplementedError
+    print("Structured output")
+    if branch:
+        raise NotImplementedError
+    if authors:
+        raise NotImplementedError
+    if files:
+        raise NotImplementedError
 
 
 @app.command()
