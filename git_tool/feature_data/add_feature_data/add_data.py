@@ -10,13 +10,11 @@ from pathlib import Path
 
 from git import Commit
 
+from git_tool.feature_data.analyze_feature_data.feature_utils import get_uuid_for_featurename
 from git_tool.feature_data.models_and_context.fact_model import FeatureFactModel
 from git_tool.feature_data.models_and_context.repo_context import (
     FEATURE_BRANCH_NAME,
     repo_context,
-)
-from git_tool.feature_data.read_feature_data.parse_data import (
-    get_uuid_for_featurename,
 )
 from git_tool.feature_data.utils.fast_import_utils import (
     AccumulatedCommitData,
@@ -25,7 +23,7 @@ from git_tool.feature_data.utils.fast_import_utils import (
 )
 
 
-def generate_fact_file_path(fact: FeatureFactModel) -> list[str]:
+def generate_fact_file_path(fact: FeatureFactModel) -> list[Path]:
     """
     The fact file is stored in the folder <feature-uuid>/<commit-hash>/<fact-filename>
     Each of these information is computed in this function
@@ -62,11 +60,12 @@ def generate_fact_commit_data(
         message=f"Generate fact for {str(commit_ref)}\n\nTouching features {fact.features}",
         add_files=[
             FastImportCommitData(
-                file_path=generate_fact_filename(
-                    fact=fact,
-                ),
+                file_path=file,
                 content=fact.model_dump_json(),
             )
+            for file in generate_fact_file_path(
+                    fact=fact
+                )
         ],
     )
     return commit_data
