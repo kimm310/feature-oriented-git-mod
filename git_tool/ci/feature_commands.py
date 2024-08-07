@@ -2,29 +2,44 @@
 Define the git subcommands that are available for users.
 This contains the logic flow for the major building blocks of the application
 """
+
 from collections import defaultdict
 from datetime import datetime
 from typing import List
 import typer
-from git_tool.feature_data.add_feature_data.add_data import add_fact_to_metadata_branch
+from git_tool.feature_data.add_feature_data.add_data import (
+    add_fact_to_metadata_branch,
+)
 from git_tool.feature_data.git_status_per_feature import (
     get_features_for_file,
     get_files_by_git_change,
 )
-from git_tool.feature_data.models_and_context.fact_model import ChangeHolder, FeatureFactModel
-from git_tool.feature_data.models_and_context.feature_state import read_staged_featureset, reset_staged_featureset, write_staged_featureset
+from git_tool.feature_data.models_and_context.fact_model import (
+    ChangeHolder,
+    FeatureFactModel,
+)
+from git_tool.feature_data.models_and_context.feature_state import (
+    read_staged_featureset,
+    reset_staged_featureset,
+    write_staged_featureset,
+)
 from git_tool.feature_data.models_and_context.repo_context import repo_context
-from git_tool.feature_data.read_feature_data.parse_data import _get_feature_uuids
+from git_tool.feature_data.read_feature_data.parse_data import (
+    _get_feature_uuids,
+)
 
 app = typer.Typer()
 
 WITHOUT_FEATURE = "Without Feature"
 
+
 def print_list_w_indent(stuff: list, indent: int = 1) -> None:
     for item in stuff:
-        print('\t' * indent + item)
+        print("\t" * indent + item)
 
 
+## Implementing Create and Read commands for feature information
+#### Read commands begin
 @app.command()
 def feature_status():
     """
@@ -56,86 +71,42 @@ def feature_status():
 
     printed = False
     if len(changes["staged_files"]) > 0:
-        printed=True
-        print_changes("Feature changes to be committed", changes["staged_files"])
+        printed = True
+        print_changes(
+            "Feature changes to be committed", changes["staged_files"]
+        )
 
     if len(changes["unstaged_files"]) > 0:
-        printed=True
+        printed = True
         print_changes(
             "Feature changes not staged for commit", changes["unstaged_files"]
         )
     if len(changes["untracked_files"]) > 0:
-        printed=True
+        printed = True
         print_changes("", (changes["untracked_files"]))
     if not printed:
         print("No changes.")
 
 
 @app.command()
-def feature_add(
-    feature_names: list[str],
-    from_annotations: bool = typer.Option(
-        False, help="Stage changes based on feature annotations"
-    ),
-    from_files: list[str] = typer.Option(
-        [],
-        help='''Specify the set of files you want to annotate. Note that files listet that are not staged will be added to the staging area''',
-    ),
-    from_staged: bool = typer.Option(False, help="Use the staged files only to add feature information"),
-    add_annotations:bool = typer.Option(False, help="Sets whether the changes will be grouped with feature annotations")
-):
-    """
-    Stages changes for a specific feature.
-    """
-    if isinstance(feature_names, str):
-        feature_names = [feature_names]
-    if from_annotations:
-        print("use annotations")
-        raise NotImplementedError
-    elif from_staged:
-        print("use staged files")
-        raise NotImplementedError
-    elif from_files:
-        print("use files")
-        # stage all unstaged files
-        with repo_context() as repo:
-            for file in from_files:
-                try:
-                    initial_diff = repo.git.diff('--cached')
-                    repo.git.add(file)
-                    print(f"Staged file: {file}")
-                    final_diff = repo.git.diff('--cached')
-                    if initial_diff == final_diff:
-                        print("No changes were made to the staging area. Aborting.")
-                        return
-                except Exception as e:
-                    print(f"Error staging file {file}: {e}")
-    else:
-        print("no specific option selected")
-        return
-    print("Check if there are staged files")
-    changes = get_files_by_git_change()
-    if len(changes["staged_files"]) == 0:
-        print("No staged changes, so no feature information to add")
-        reset_staged_featureset()
-        return
-    print(f"Adding feature information {feature_names} to staged files")
-    write_staged_featureset(features=feature_names)
-    if add_annotations:
-        print("Not adding annotations, not implemented yet")
-
-
-@app.command()
 def feature_info(
     all: bool = typer.Option(False, help="Get all features"),
-    currently_staged:bool = typer.Option(False, help="List all features that are touched by staged changes"),
+    currently_staged: bool = typer.Option(
+        False, help="List all features that are touched by staged changes"
+    ),
     feature: str = typer.Option(None, help="Inspect a particular feature"),
     authors: bool = typer.Option(
         False, help="Include authors in the inspection"
     ),
     files: bool = typer.Option(False, help="Include files in the inspection"),
-    updatable: bool = typer.Option(False, help="Display whether the feature can be updated and what update options there are"),
-    branch: str = typer.Option(None, help="Specify branch for inspection that should be compared to the currently checked out branch"),
+    updatable: bool = typer.Option(
+        False,
+        help="Display whether the feature can be updated and what update options there are",
+    ),
+    branch: str = typer.Option(
+        None,
+        help="Specify branch for inspection that should be compared to the currently checked out branch",
+    ),
 ):
     """
     Inspects feature information.
@@ -169,11 +140,82 @@ def feature_blame(filename: str):
     print(f"Executing feature-blame for {filename}")
 
 
+#### Read commands end
+### Create commands begin
+
+
 @app.command()
-def feature_commit(commit: str, features: list[str]= typer.Option(None, help="Add feature names manually")):
+def feature_add(
+    feature_names: list[str],
+    from_annotations: bool = typer.Option(
+        False, help="Stage changes based on feature annotations"
+    ),
+    from_files: list[str] = typer.Option(
+        [],
+        help="""Specify the set of files you want to annotate. Note that files listet that are not staged will be added to the staging area""",
+    ),
+    from_staged: bool = typer.Option(
+        False, help="Use the staged files only to add feature information"
+    ),
+    add_annotations: bool = typer.Option(
+        False,
+        help="Sets whether the changes will be grouped with feature annotations",
+    ),
+):
+    """
+    Stages changes for a specific feature.
+    """
+    if isinstance(feature_names, str):
+        feature_names = [feature_names]
+    if from_annotations:
+        print("use annotations")
+        raise NotImplementedError
+    elif from_staged:
+        print("use staged files")
+        raise NotImplementedError
+    elif from_files:
+        print("use files")
+        # stage all unstaged files
+        with repo_context() as repo:
+            for file in from_files:
+                try:
+                    initial_diff = repo.git.diff("--cached")
+                    repo.git.add(file)
+                    print(f"Staged file: {file}")
+                    final_diff = repo.git.diff("--cached")
+                    if initial_diff == final_diff:
+                        print(
+                            "No changes were made to the staging area. Aborting."
+                        )
+                        return
+                except Exception as e:
+                    print(f"Error staging file {file}: {e}")
+    else:
+        print("no specific option selected")
+        return
+    print("Check if there are staged files")
+    changes = get_files_by_git_change()
+    if len(changes["staged_files"]) == 0:
+        print("No staged changes, so no feature information to add")
+        reset_staged_featureset()
+        return
+    print(f"Adding feature information {feature_names} to staged files")
+    write_staged_featureset(features=feature_names)
+    if add_annotations:
+        print("Not adding annotations, not implemented yet")
+
+
+@app.command()
+def feature_commit(
+    commit: str,
+    features: list[str] = typer.Option(
+        None,
+        help="Add feature names manually. This ignores staged feature information",
+    ),
+):
     """
     Associate feature information with a regular git commit.
-    This command is a plumbing command, usually this would be happening automatically when 
+    This command is a plumbing command, usually this would be happening automatically when
     setting up git hooks.
     """
     print("Step 1: select commit to assign information to")
@@ -206,6 +248,9 @@ def feature_commit(commit: str, features: list[str]= typer.Option(None, help="Ad
     print("Step 4: Cleanup all information/ internal state stuff")
     reset_staged_featureset()
     print("Feature commit process completed successfully.")
+
+
+### Create commands end
 
 if __name__ == "__main__":
     app()
