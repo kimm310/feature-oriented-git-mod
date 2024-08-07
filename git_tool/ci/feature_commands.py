@@ -170,7 +170,7 @@ def feature_blame(filename: str):
 
 
 @app.command()
-def feature_commit(commit: str):
+def feature_commit(commit: str, features: list[str]= typer.Option(None, help="Add feature names manually")):
     """
     Associate feature information with a regular git commit.
     This command is a plumbing command, usually this would be happening automatically when 
@@ -179,11 +179,15 @@ def feature_commit(commit: str):
     print("Step 1: select commit to assign information to")
     print(f"\t Commit is {commit}")
     print("Step 2: Select feature information")
-    staged_features = read_staged_featureset()
-    if not staged_features:
-        print("No staged feature information available.")
-        return
-    print(f"\t Staged features {staged_features}")
+    if not features:
+        staged_features = read_staged_featureset()
+        print(f"\t Selecting staged features {staged_features}")
+        if not staged_features:
+            print("No staged feature information available.")
+            return
+    else:
+        staged_features = features
+        print(f"\t Selecting features from cli parameters {staged_features}")
     print("Step 3: Add a feature meta commit on meta data branch")
     with repo_context() as repo:
         commit_obj = repo.commit(commit)
