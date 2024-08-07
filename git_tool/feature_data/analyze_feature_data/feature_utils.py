@@ -88,6 +88,6 @@ def get_uuid_for_featurename(name: str) -> uuid.UUID:
             FEATURE_BRANCH_NAME,
             f"-S {name}",
             name_only=True,
-            one_line=True,
+            oneline=True,
             pretty="format:",
         )
