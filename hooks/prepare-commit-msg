@@ -1,0 +1,21 @@
+#!/bin/bash
+# Prepare Commit Message Hook: Modify the commit message to include feature information
+
+COMMIT_MSG_FILE=$1
+COMMIT_SOURCE=$2
+SHA1=$3
+
+cd /home/tabea/Uni/worktree/inital-experiments
+source env/bin/activate
+FEATURE_MSG=$(python -m git_tool feature-commit-msg)
+
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to generate feature commit message."
+    exit 1
+fi
+
+if [ "$FEATURE_MSG" ]; then
+    echo -e "\n\n$FEATURE_MSG" >> "$COMMIT_MSG_FILE"
+else
+    echo "Feature information not found: $FEATURE_MSG"
+fi

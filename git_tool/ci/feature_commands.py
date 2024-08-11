@@ -274,6 +274,21 @@ def feature_pre_commit():
     print("Pre-commit checks passed.")
     raise typer.Exit(code=0)  #
 
+@app.command()
+def feature_commit_msg():
+    """
+    Generates feature information for the commit message.
+    """
+    staged_features = read_staged_featureset()
+
+    if not staged_features:
+        print("No features associated with the staged changes.")
+        raise typer.Exit(code=1)
+
+    feature_msg = f"Associated Features: {', '.join(staged_features)}"
+    
+    print(feature_msg)
+
 
 if __name__ == "__main__":
     app()
