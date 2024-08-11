@@ -1,0 +1,11 @@
+#!/bin/bash
+# Pre-Commit Hook: Assert that feature changes were staged and the script does not find reasons to not continue
+
+cd /home/tabea/Uni/worktree/inital-experiments
+source env/bin/activate
+python -m git_tool feature-pre-commit
+
+if [ $? -ne 0 ]; then
+  echo "Error: Pre-commit checks failed."
+  exit 1 # exiting non-zero aborts the commit
+fi

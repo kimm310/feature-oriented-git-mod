@@ -252,5 +252,28 @@ def feature_commit(
 
 ### Create commands end
 
+### Internal check commands
+@app.command()
+def feature_pre_commit():
+    """
+    Checks if all staged changes are properly associated with features.
+    Returns an error if any issues are found.
+    """
+    changes = get_files_by_git_change()
+
+    if len(changes["staged_files"]) == 0:
+        print("Error: No staged changes found.")
+        raise typer.Exit(code=1)
+
+    staged_features = read_staged_featureset()
+
+    if not staged_features:
+        print("Error: No features associated with the staged changes.")
+        raise typer.Exit(code=1)  
+
+    print("Pre-commit checks passed.")
+    raise typer.Exit(code=0)  #
+
+
 if __name__ == "__main__":
     app()
