@@ -12,6 +12,13 @@ classifiers = [
   "Operating System :: OS Independent",
   "Development Status :: 3 - Alpha",
 ]
+dependencies = [
+  "typer>=0.12,<0.13",
+  "pydantic[email]>=2.8,<3.0",
+  "GitPython>=3.1,<4.0",
+  "python-dotenv>=1.0,<2.0",
+  "prompt_toolkit>=3.0,<4.0",
+]
 
 [project.scripts]
 git-feature-status = "git_tool.ci.subcommands.feature_status:app"
@@ -48,10 +55,3 @@ extend-exclude = '''
   | scripts/generate_schema.py  # Uses match syntax
 )
 '''
-
-[project.dependencies]
-typer = "^0.12.3"
-pydantic = { version = "^2.8.2", extras = ["email"] }
-GitPython = "^3.1.43"
-python-dotenv = "^1.0.1"
-prompt_toolkit = "^3.0.47"
