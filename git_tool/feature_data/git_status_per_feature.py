@@ -3,6 +3,7 @@ from typing import List, TypedDict
 from git_tool.feature_data.file_based_git_info import get_commits_for_file
 
 from git_tool.feature_data.models_and_context.repo_context import (
+    FEATURE_BRANCH_NAME,
     branch_folder_list,
     repo_context,
 )
@@ -89,6 +90,7 @@ def get_features_for_file(
     if use_annotations:
         features = find_annotations_for_file(file_path)
         return features
+
     commits = get_commits_for_file(file_name=file_path, branch_name=None)
     with branch_folder_list() as feature_folders:
         for commit in commits:
@@ -96,6 +98,13 @@ def get_features_for_file(
                 if commit_in_feature_folder(commit, feature):
                     features.append(get_feature_name_from_folder(feature))
     return features
+
+
+def get_commits_for_feature(feature_uuid: str) -> list[str]:
+    with repo_context() as repo:
+        return repo.git.ls_tree(
+            "-d", "--name-only", f"{FEATURE_BRANCH_NAME:feature_uuid}"
+        ).split("\n")
 
 
 def commit_in_feature_folder(commit: str, feature_folder: str) -> bool:
@@ -109,12 +118,7 @@ def commit_in_feature_folder(commit: str, feature_folder: str) -> bool:
     Returns:
         bool: True if the commit is present in the feature folder, False otherwise.
     """
-    with repo_context() as repo:
-        try:
-            repo.git.rev_list("--objects", "--all", feature_folder, grep=commit)
-            return True
-        except Exception as e:  # TODO find the exception raised here
-            return False
+    return commit in get_commits_for_feature(feature_uuid=feature_folder)
 
 
 def get_feature_for_hunk(file_path: str, hunk: str) -> List[str]:
