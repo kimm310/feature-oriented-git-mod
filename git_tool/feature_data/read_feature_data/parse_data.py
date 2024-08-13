@@ -27,7 +27,7 @@ def _get_feature_uuids() -> list[str]:
     """
     with repo_context() as repo:
         folder_string = repo.git.ls_tree(
-            "-r", "-d", FEATURE_BRANCH_NAME, name_only=True
+            "-d", FEATURE_BRANCH_NAME, name_only=True
         )
         folders = folder_string.split()
         return folders
