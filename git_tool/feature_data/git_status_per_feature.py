@@ -103,7 +103,7 @@ def get_features_for_file(
 def get_commits_for_feature(feature_uuid: str) -> list[str]:
     with repo_context() as repo:
         return repo.git.ls_tree(
-            "-d", "--name-only", f"{FEATURE_BRANCH_NAME:feature_uuid}"
+            "-d", "--name-only", f"{FEATURE_BRANCH_NAME}:{feature_uuid}"
         ).split("\n")
 
 
