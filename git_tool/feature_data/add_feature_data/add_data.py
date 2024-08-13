@@ -10,7 +10,9 @@ from pathlib import Path
 
 from git import Commit
 
-from git_tool.feature_data.analyze_feature_data.feature_utils import get_uuid_for_featurename
+from git_tool.feature_data.analyze_feature_data.feature_utils import (
+    get_uuid_for_featurename,
+)
 from git_tool.feature_data.models_and_context.fact_model import FeatureFactModel
 from git_tool.feature_data.models_and_context.repo_context import (
     FEATURE_BRANCH_NAME,
@@ -63,9 +65,7 @@ def generate_fact_commit_data(
                 file_path=file,
                 content=fact.model_dump_json(),
             )
-            for file in generate_fact_file_path(
-                    fact=fact
-                )
+            for file in generate_fact_file_path(fact=fact)
         ],
     )
     return commit_data
