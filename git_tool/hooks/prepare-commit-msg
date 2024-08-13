@@ -5,14 +5,13 @@ COMMIT_MSG_FILE=$1
 COMMIT_SOURCE=$2
 SHA1=$3
 
-FEATURE_MSG=$(git feature-commit-msg)
-
 if [ $? -ne 0 ]; then
     echo "Error: Failed to generate feature commit message."
     exit 1
 fi
 
 if [ "$FEATURE_MSG" ]; then
+    echo $COMMIT_SOURCE
     echo -e "\n\n$FEATURE_MSG" >> "$COMMIT_MSG_FILE"
 else
     echo "Feature information not found: $FEATURE_MSG"
