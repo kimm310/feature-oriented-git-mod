@@ -91,3 +91,5 @@ def get_uuid_for_featurename(name: str) -> uuid.UUID:
             oneline=True,
             pretty="format:",
         )
+    # TODO this is not implemented correctly
+    return name
