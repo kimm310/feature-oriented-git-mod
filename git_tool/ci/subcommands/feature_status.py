@@ -53,12 +53,20 @@ def feature_status():
 
         staged_features = read_staged_featureset()
         print(
-            f"Staged Features (note: not checking if the file has more features associated)"
+            f"Staged Features (associated, but not staged features for a file are in parenthesis)"
         )
         print(*staged_features, sep=",")
         print("Feature changes to be committed")
         for item in changes["staged_files"]:
-            print(f"\t{item}")
+            additional_features = get_features_for_file(item)
+            unstaged_features = [
+                f for f in additional_features if not f in staged_features
+            ]
+            if unstaged_features:
+                non_staged_str = f" ({', '.join(unstaged_features)})"
+            else:
+                non_staged_str = ""
+            print(f"\t{item} {non_staged_str}")
 
     if len(changes.get("unstaged_files", [])) > 0:
         printed = True
