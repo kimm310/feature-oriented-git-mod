@@ -1,3 +1,35 @@
+[project]
+name = "git_with_features"
+authors = [
+  { name="Tabea Röthemeyer", email="tabea.roethemeyer@rub.de" },
+]
+license = {file = "LICENSE"}
+description = "Support feature-oriented development workflows with git"
+readme = "README.md"
+dynamic = ["version"]
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+   " Development Status :: 3 - Alpha"
+]
+
+[project.scripts]
+git-feature-add = "git_tool.cli:feature_add"
+git-feature-commit-msg = "git_tool.cli:feature_commit_msg"
+git-feature-pre-commit = "git_tool.cli:feature_pre_commit"
+git-feature-info = "git_tool.cli:feature_info"
+git-feature-status = "git_tool.cli:feature_status"
+git-feature-blame = "git_tool.cli:feature_blame"
+git-feature-commit = "git_tool.cli:feature_commit"
+
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+
 [tool.pytest.ini_options]
 testpaths = [
     "test",
