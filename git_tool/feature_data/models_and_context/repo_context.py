@@ -15,6 +15,9 @@ assert FEATURE_BRANCH_NAME is not None
 assert MAIN_BRANCH_NAME is not None
 assert REPO_PATH is not None
 
+print(f"FEATURE_BRANCH_NAME: {FEATURE_BRANCH_NAME}")
+print(f"MAIN_BRANCH_NAME: {MAIN_BRANCH_NAME}")
+print(f"REPO_PATH: {REPO_PATH}")
 
 @contextmanager
 def repo_context(repo_path=REPO_PATH):
