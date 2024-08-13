@@ -14,13 +14,12 @@ def get_feature_file()-> Path:
     Depending on whether the repo is a git worktree or a usual git repo, the resolution of the .git folder
     works differently
     """
-    featureinfo_filename = Path(".git/FEATUREINFO")
     with repo_context() as repo:
         git_repo=  Path(repo.git.rev_parse("--show-toplevel")).resolve().joinpath(".git")
         if git_repo.is_file():
             return Path(repo.git.rev_parse("--show-toplevel")).resolve().joinpath(".FEATUREINFO")
         else:
-            git_repo.joinpath("FEATUREINFO")
+            return git_repo.joinpath("FEATUREINFO")
 
 def read_staged_featureset() -> List[str]:
     """
