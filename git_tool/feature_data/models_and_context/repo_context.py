@@ -1,5 +1,8 @@
+from datetime import datetime
 import os
+import tempfile
 from contextlib import contextmanager
+from functools import wraps
 from pathlib import Path
 from typing import Generator, Iterable, Tuple
 
@@ -19,6 +22,76 @@ print(f"FEATURE_BRANCH_NAME: {FEATURE_BRANCH_NAME}")
 print(f"MAIN_BRANCH_NAME: {MAIN_BRANCH_NAME}")
 print(f"REPO_PATH: {REPO_PATH}")
 
+
+def create_empty_branch(branch_name: str, repo: git.Repo) -> str:
+    """
+    Create an orphan branch without checking it out using fast-import. An orphan branch
+    does not have any parent commits.
+
+    Args:
+        branch_name (str): The name of the branch to create.
+        repo (git.Repo): The Git repository object.
+
+    Returns:
+        str: The fast-import script as a string.
+    """
+    timestamp = int(datetime.now().timestamp())
+    committer_name = os.getenv("GIT_COMMITTER_NAME", "Unknown")
+    committer_email = os.getenv("GIT_COMMITTER_EMAIL", "unknown@example.com")
+
+    result = []
+    result.append(f"commit refs/heads/{branch_name}")
+    result.append(
+        f"committer {committer_name} <{committer_email}> {timestamp} +0000"
+    )
+    result.append("data <<EOM")
+    result.append(f"Initial empty commit for {branch_name}")
+    result.append("EOM")
+
+    fast_import_script = "\n".join(result)
+
+    try:
+        with tempfile.NamedTemporaryFile(delete=False, mode="w") as temp_file:
+            temp_file.write(fast_import_script)
+            temp_file_path = temp_file.name
+
+        with open(temp_file_path, "r") as file:
+            repo.git.fast_import(istream=file)
+            repo.git.push("-u", "origin", branch_name)
+        print(f"Branch {branch_name} successfully created.")
+    except Exception as e:
+        print(f"Error while creating branch: {e}")
+    finally:
+        if temp_file_path:
+            os.remove(temp_file_path)
+
+    return fast_import_script
+
+
+def ensure_feature_branch(func):
+    """
+    Decorator to ensure that the feature branch is created if it does not exist.
+    This will only be executed once, even if the context manager is called multiple times.
+    """
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if not wrapper.has_run:
+            repo = git.Repo(REPO_PATH)
+            print("Executing ensure feautre branch")
+            if FEATURE_BRANCH_NAME not in repo.heads:
+                print(
+                    f"Branch {FEATURE_BRANCH_NAME} existiert nicht. Erstelle neuen Branch ohne Eltern."
+                )
+                create_empty_branch(FEATURE_BRANCH_NAME, repo)
+            wrapper.has_run = True
+        return func(*args, **kwargs)
+
+    wrapper.has_run = False
+    return wrapper
+
+
+@ensure_feature_branch
 @contextmanager
 def repo_context(repo_path=REPO_PATH):
     repo = git.Repo(repo_path)
@@ -54,7 +127,8 @@ def branch_folder_list(
         finally:
             pass
 
-def get_current_branch()->str:
+
+def get_current_branch() -> str:
     with repo_context() as repo:
         return repo.active_branch.name
 
