@@ -14,14 +14,7 @@ classifiers = [
 ]
 
 [project.scripts]
-git-feature-add = "git_tool.cli:feature_add"
-git-feature-commit-msg = "git_tool.cli:feature_commit_msg"
-git-feature-pre-commit = "git_tool.cli:feature_pre_commit"
-git-feature-info = "git_tool.cli:feature_info"
-git-feature-status = "git_tool.cli:feature_status"
-git-feature-blame = "git_tool.cli:feature_blame"
-git-feature-commit = "git_tool.cli:feature_commit"
-
+git-feature-status = "git_tool.ci.subcommands.feature_status:app"
 
 [build-system]
 requires = ["hatchling"]
