@@ -5,6 +5,9 @@ from git_tool.feature_data.git_status_per_feature import (
     get_features_for_file,
     get_files_by_git_change,
 )
+from git_tool.feature_data.models_and_context.feature_state import (
+    read_staged_featureset,
+)
 
 
 WITHOUT_FEATURE = "Without Feature"
@@ -29,7 +32,9 @@ def feature_status():
                 feature_dict[feature].append(file)
         return feature_dict
 
-    def print_changes(change_type: str, files: list[str]):
+    def print_changes(
+        change_type: str, files: list[str], staged_features: list[str] = []
+    ):
         feature_dict = group_files_by_feature(files)
         print(f"{change_type.replace('_', ' ').title()}:")
         for feature, files in feature_dict.items():
@@ -45,9 +50,15 @@ def feature_status():
 
     if len(changes.get("staged_files", [])) > 0:
         printed = True
-        print_changes(
-            "Feature changes to be committed", changes["staged_files"]
+
+        staged_features = read_staged_featureset()
+        print(
+            f"Staged Features (note: not checking if the file has more features associated)"
         )
+        print(*staged_features, sep=",")
+        print("Feature changes to be committed")
+        for item in changes["staged_files"]:
+            print(f"\t{item}")
 
     if len(changes.get("unstaged_files", [])) > 0:
         printed = True

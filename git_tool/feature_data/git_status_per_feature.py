@@ -1,6 +1,7 @@
 from collections import defaultdict, namedtuple
 from typing import List, TypedDict
 from git_tool.feature_data.file_based_git_info import get_commits_for_file
+
 from git_tool.feature_data.models_and_context.repo_context import (
     branch_folder_list,
     repo_context,
