@@ -28,4 +28,4 @@ def feature_pre_commit():
         raise typer.Exit(code=1)
 
     print("Pre-commit checks passed.")
-    raise typer.Exit(code=0)  #
+    raise typer.Exit(code=0)
