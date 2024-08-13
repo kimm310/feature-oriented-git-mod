@@ -7,9 +7,10 @@ import git
 from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).parents[1].joinpath(".env").absolute())
-FEATURE_BRANCH_NAME = os.getenv("BRANCH_NAME")
-MAIN_BRANCH_NAME = os.getenv("MAIN_BRANCH_NAME")
-REPO_PATH = os.getenv("REPO_PATH")
+# FEATURE_BRANCH_NAME = os.getenv("BRANCH_NAME", "feature-metadata")
+FEATURE_BRANCH_NAME = "feature6-metadata"
+MAIN_BRANCH_NAME = os.getenv("MAIN_BRANCH_NAME", "main")
+REPO_PATH = os.getenv("REPO_PATH", os.getcwd())
 assert FEATURE_BRANCH_NAME is not None
 assert MAIN_BRANCH_NAME is not None
 assert REPO_PATH is not None
