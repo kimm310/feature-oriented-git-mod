@@ -13,7 +13,9 @@ if [ $? -ne 0 ]; then
 fi
 
 if [ "$FEATURE_MSG" ]; then
-    echo -e "\n\n$FEATURE_MSG" >> "$COMMIT_MSG_FILE"
+    COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+    
+    echo -e "$FEATURE_MSG\n\n$COMMIT_MSG" > "$COMMIT_MSG_FILE" # Place our message on top
 else
     echo "Feature information not found: $FEATURE_MSG"
 fi
