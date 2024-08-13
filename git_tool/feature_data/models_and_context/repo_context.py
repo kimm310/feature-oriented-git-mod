@@ -10,17 +10,17 @@ import git
 from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).parents[1].joinpath(".env").absolute())
-# FEATURE_BRANCH_NAME = os.getenv("BRANCH_NAME", "feature-metadata")
-FEATURE_BRANCH_NAME = "feature6-metadata"
+FEATURE_BRANCH_NAME = os.getenv("BRANCH_NAME", "feature-metadata")
+# FEATURE_BRANCH_NAME = "feature6-metadata"
 MAIN_BRANCH_NAME = os.getenv("MAIN_BRANCH_NAME", "main")
 REPO_PATH = os.getenv("REPO_PATH", os.getcwd())
 assert FEATURE_BRANCH_NAME is not None
 assert MAIN_BRANCH_NAME is not None
 assert REPO_PATH is not None
 
-print(f"FEATURE_BRANCH_NAME: {FEATURE_BRANCH_NAME}")
-print(f"MAIN_BRANCH_NAME: {MAIN_BRANCH_NAME}")
-print(f"REPO_PATH: {REPO_PATH}")
+# print(f"FEATURE_BRANCH_NAME: {FEATURE_BRANCH_NAME}")
+# print(f"MAIN_BRANCH_NAME: {MAIN_BRANCH_NAME}")
+# print(f"REPO_PATH: {REPO_PATH}")
 
 
 def create_empty_branch(branch_name: str, repo: git.Repo) -> str:
@@ -62,7 +62,7 @@ def create_empty_branch(branch_name: str, repo: git.Repo) -> str:
             except Exception:
                 ...
                 # If origin is not defined yet, I can't set an upstream. Will need to do this manually elsewhere
-        print(f"Branch {branch_name} successfully created.")
+        # print(f"Branch {branch_name} successfully created.")
     except Exception as e:
         print(f"Error while creating branch: {e}")
     finally:
@@ -82,11 +82,11 @@ def ensure_feature_branch(func):
     def wrapper(*args, **kwargs):
         if not wrapper.has_run:
             repo = git.Repo(REPO_PATH)
-            print("Executing ensure feautre branch")
+            # print("Executing ensure feautre branch")
             if FEATURE_BRANCH_NAME not in repo.heads:
-                print(
-                    f"Branch {FEATURE_BRANCH_NAME} existiert nicht. Erstelle neuen Branch ohne Eltern."
-                )
+                # print(
+                #     f"Branch {FEATURE_BRANCH_NAME} existiert nicht. Erstelle neuen Branch ohne Eltern."
+                # )
                 create_empty_branch(FEATURE_BRANCH_NAME, repo)
             wrapper.has_run = True
         return func(*args, **kwargs)

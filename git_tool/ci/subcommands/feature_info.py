@@ -43,11 +43,11 @@ def feature_info(
     if currently_staged:
         print(f"Currently staged {read_staged_featureset()}")
         return
-    print(
-        f"Executing feature-info with all={all}, feature={feature}, authors={authors}, files={files}, updatable={updatable}, branch={branch}"
-    )
+    # print(
+    #     f"Executing feature-info with all={all}, feature={feature}, authors={authors}, files={files}, updatable={updatable}, branch={branch}"
+    # )
     if all:
-        print("All features in project")
+        print("All Features")
         print_list_w_indent(_get_feature_uuids())
     elif feature:
         print(f"Collecting information for feautre {feature}")

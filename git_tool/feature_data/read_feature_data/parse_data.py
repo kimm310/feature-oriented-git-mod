@@ -32,12 +32,15 @@ def _get_feature_uuids() -> list[str]:
         folders = folder_string.split()
         return folders
 
+
 def _get_associated_files(feature_uuid: str, ref_commit: str) -> list[str]:
     return []
 
-def _get_fact_from_featurefile(file:str):
+
+def _get_fact_from_featurefile(file: str):
     with open(file, "r") as f:
         return FeatureFactModel.model_validate_json(f.read())
+
 
 def get_metadata(
     feature_uuid: str, ref_commit: Optional[str] = None
