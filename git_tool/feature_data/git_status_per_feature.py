@@ -1,4 +1,4 @@
-from collections import defaultdict, namedtuple
+from collections import namedtuple
 from typing import List, TypedDict
 from git_tool.feature_data.file_based_git_info import get_commits_for_file
 

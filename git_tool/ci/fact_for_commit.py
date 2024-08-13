@@ -19,8 +19,12 @@ from git_tool.feature_data.models_and_context.fact_model import (
 from git_tool.feature_data.models_and_context.repo_context import repo_context
 
 
-def select_features(features):
-    choices = [(uuid, name) for name, uuid in features.items()]
+# TODO currently unused code
+def select_features(feature_options: dict[str, str]) -> list:
+    """
+    Let users decide which features to use by selection.
+    """
+    choices = [(uuid, name) for name, uuid in feature_options.items()]
     selected = []
 
     print("Select features (use space to toggle, enter to confirm):")
