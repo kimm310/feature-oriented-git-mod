@@ -1,5 +1,5 @@
 [project]
-name = "git_with_features"
+name = "git_tool"
 authors = [{ name = "Tabea Röthemeyer", email = "tabea.roethemeyer@rub.de" }]
 license = { file = "LICENSE" }
 description = "Support feature-oriented development workflows with git"
