@@ -57,7 +57,11 @@ def create_empty_branch(branch_name: str, repo: git.Repo) -> str:
 
         with open(temp_file_path, "r") as file:
             repo.git.fast_import(istream=file)
-            repo.git.push("-u", "origin", branch_name)
+            try:
+                repo.git.push("-u", "origin", branch_name)
+            except Exception:
+                ...
+                # If origin is not defined yet, I can't set an upstream. Will need to do this manually elsewhere
         print(f"Branch {branch_name} successfully created.")
     except Exception as e:
         print(f"Error while creating branch: {e}")
