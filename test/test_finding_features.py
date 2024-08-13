@@ -14,7 +14,7 @@ TESTSTRING = """
 
 
 def test_extract_features():
-    features = finding_features.extract_features(TESTSTRING)
+    features = finding_features.extract_features_from_annotation(TESTSTRING)
     feature_names = list(map(lambda x: x.name, features))
     assert feature_names == ["FEATURE1", "FEATURE2"]
 
