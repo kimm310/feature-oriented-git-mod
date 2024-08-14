@@ -119,24 +119,24 @@ def get_commits_for_feature_on_other_branches(
     Returns:
         A set of commit IDs that are on other branches but not on the current branch.
     """
-    if other_branch != "":
-        with repo_context() as repo:
+    with repo_context() as repo:
+        if other_branch != "":
             other_branches = [
                 branch
                 for branch in repo.branches
                 if branch.name != current_branch
             ]
-    else:
-        other_branches = [other_branch]
-    updatable_commits = set()
+        else:
+            other_branches = [other_branch]
+        updatable_commits = set()
 
-    for branch in other_branches:
-        branch_commits = set(
-            repo.git.log(
-                f"{current_branch}..{branch.name}", "--pretty=%H"
-            ).splitlines()
-        )
-        common_commits = feature_commits & branch_commits
-        updatable_commits.update(common_commits)
+        for branch in other_branches:
+            branch_commits = set(
+                repo.git.log(
+                    f"{current_branch}..{branch.name}", "--pretty=%H"
+                ).splitlines()
+            )
+            common_commits = feature_commits & branch_commits
+            updatable_commits.update(common_commits)
 
-    return updatable_commits
+        return updatable_commits
