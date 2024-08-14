@@ -9,6 +9,7 @@ from git_tool.feature_data.models_and_context.feature_state import (
     write_staged_featureset,
 )
 from git_tool.feature_data.models_and_context.repo_context import repo_context
+from git_tool.finding_features import features_for_file_by_annotation
 
 app = typer.Typer()
 
@@ -17,7 +18,8 @@ app = typer.Typer()
 def feature_add(
     feature_names: list[str] = [],
     from_annotations: bool = typer.Option(
-        False, help="Stage changes based on feature annotations"
+        False,
+        help="Stage all changes and information based on feature annotations",
     ),
     from_files: list[str] = typer.Option(
         [],
@@ -38,8 +40,16 @@ def feature_add(
         feature_names = [feature_names]
     elif from_annotations:
         typer.echo("use annotations")
-        typer.echo("This is not implemented yet", err=True)
-        raise NotImplementedError
+        files = get_files_by_git_change().get(
+            "unstaged_files", []
+        ) + get_files_by_git_change().get("untracked_files", [])
+        all_features = [
+            feature
+            for file in files
+            for feature in features_for_file_by_annotation(file_name=file)
+        ]
+        stage_files(files)
+        feature_names = set(all_features)
     elif from_staged:
         feature_names = read_features_from_staged()
     elif from_files:

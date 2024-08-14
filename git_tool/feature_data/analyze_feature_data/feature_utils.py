@@ -7,8 +7,6 @@ import uuid
 from datetime import datetime
 from typing import Generator, Optional
 
-from git import Repo
-
 from git_tool.feature_data.models_and_context.fact_model import (
     get_fact_from_featurefile,
 )
