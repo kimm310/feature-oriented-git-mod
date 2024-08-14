@@ -24,7 +24,6 @@ def get_commits_for_file(
         commit_id_only = "--pretty=format:%H"
         try:
             commits = repo.git.log(branch_name, commit_id_only, "--", file_name)
-            print("found commits", commits, "for", file_name)
             return commits.split("\n")
         except Exception:
             # this happens for example if no commits exists
