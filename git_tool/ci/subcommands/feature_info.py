@@ -59,9 +59,6 @@ def feature_info(
     # print(
     #     f"Executing feature-info with all={all}, feature={feature}, authors={authors}, files={files}, updatable={updatable}, branch={branch}"
     # )
-    if all:
-        typer.echo("All Features")
-        print_list_w_indent(_get_feature_uuids())
     elif feature:
         typer.echo(f"Collecting information for feature {feature}")
         commit_ids = get_commits_for_feature(feature)
@@ -86,14 +83,17 @@ def feature_info(
                 file for c in commit_ids for file in get_files_for_commit(c)
             )
             print_list_w_indent(files)
-    if updatable:
-        if branch:
-            typer.echo(f"Commits for the same feature on branch {branch}")
-            get_commits_for_feature_on_other_branches(
-                feature_commits=commit_ids, other_branch=branch
-            )
-        else:
-            typer.echo("Commits for the same feature on other branches")
-            get_commits_for_feature_on_other_branches(
-                feature_commits=commit_ids
-            )
+        if updatable:
+            if branch:
+                typer.echo(f"Commits for the same feature on branch {branch}")
+                get_commits_for_feature_on_other_branches(
+                    feature_commits=commit_ids, other_branch=branch
+                )
+            else:
+                typer.echo("Commits for the same feature on other branches")
+                get_commits_for_feature_on_other_branches(
+                    feature_commits=commit_ids
+                )
+    if all | ((not feature) & (not currently_staged)):
+        typer.echo("All Features")
+        print_list_w_indent(_get_feature_uuids())
