@@ -95,8 +95,9 @@ def get_features_for_file(
     with branch_folder_list() as feature_folders:
         for commit in commits:
             for feature in feature_folders:
-                if commit_in_feature_folder(commit, feature):
-                    features.append(get_feature_name_from_folder(feature))
+                feature_name = get_feature_name_from_folder(feature)
+                if commit_in_feature_folder(commit, feature_name):
+                    features.append(feature_name)
     return features
 
 
@@ -118,7 +119,15 @@ def commit_in_feature_folder(commit: str, feature_folder: str) -> bool:
     Returns:
         bool: True if the commit is present in the feature folder, False otherwise.
     """
-    return commit in get_commits_for_feature(feature_uuid=feature_folder)
+    assert isinstance(
+        commit, str
+    ), f"Expected commit to be a string, but got {type(commit).__name__}"
+    assert isinstance(
+        feature_folder, str
+    ), f"Expected feature_folder to be a string, but got {type(feature_folder).__name__}"
+
+    result = commit in get_commits_for_feature(feature_uuid=feature_folder)
+    return result
 
 
 def get_feature_for_hunk(file_path: str, hunk: str) -> List[str]:
