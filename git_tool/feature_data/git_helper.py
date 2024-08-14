@@ -24,4 +24,4 @@ def get_files_for_commit(commit_id: str) -> list[str]:
     Get the list of files modified by the given commit.
     """
     with repo_context() as repo:
-        return repo.git.show("--name-only", "--pretty=", commit_id).splitlines()
+        return repo.git.show("--name-only", "--pretty=", commit_id).split("\n")

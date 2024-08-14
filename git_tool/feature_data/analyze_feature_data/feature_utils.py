@@ -103,7 +103,9 @@ def get_current_branchname() -> str:
 
 
 def get_commits_for_feature_on_other_branches(
-    feature_commits: set[str], current_branch: str = get_current_branchname()
+    feature_commits: set[str],
+    current_branch: str = get_current_branchname(),
+    other_branch: str = "",
 ) -> set[str]:
     """
     Find commits on other branches that affect the same feature but are not present on the current branch.
@@ -112,14 +114,20 @@ def get_commits_for_feature_on_other_branches(
         repo: The Git repository object.
         feature_commits: A set of commit IDs associated with the feature.
         current_branch: The name of the current branch.
+        other_branch: Optional limitatation of the branch that should be compared to
 
     Returns:
         A set of commit IDs that are on other branches but not on the current branch.
     """
-    with repo_context() as repo:
-        other_branches = [
-            branch for branch in repo.branches if branch.name != current_branch
-        ]
+    if other_branch != "":
+        with repo_context() as repo:
+            other_branches = [
+                branch
+                for branch in repo.branches
+                if branch.name != current_branch
+            ]
+    else:
+        other_branches = [other_branch]
     updatable_commits = set()
 
     for branch in other_branches:

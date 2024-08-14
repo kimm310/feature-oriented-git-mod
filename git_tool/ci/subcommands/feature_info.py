@@ -37,6 +37,9 @@ def feature_info(
         False, help="Include authors in the inspection"
     ),
     files: bool = typer.Option(False, help="Include files in the inspection"),
+    branches: bool = typer.Option(
+        False, help="Display all branches containing the feautre"
+    ),
     updatable: bool = typer.Option(
         False,
         help="Display whether the feature can be updated and what update options there are",
@@ -63,9 +66,15 @@ def feature_info(
         typer.echo(f"Collecting information for feature {feature}")
         commit_ids = get_commits_for_feature(feature)
         print_list_w_indent(commit_ids)
-        if branch:
-            typer.echo(f"Branches")
-            branches = set([get_branches_for_commit(c) for c in commit_ids])
+        if branches:
+            typer.echo(f"Branches (* indicates current branch)")
+            branches = set(
+                [
+                    branch
+                    for c in commit_ids
+                    for branch in get_branches_for_commit(c)
+                ]
+            )
             print_list_w_indent(branches)
         if authors:
             typer.echo(f"Authors")
@@ -73,9 +82,17 @@ def feature_info(
             print_list_w_indent(authors)
         if files:
             typer.echo(f"Files")
-            files = set([get_files_for_commit(c) for c in commit_ids])
+            files = set(
+                file for c in commit_ids for file in get_files_for_commit(c)
+            )
             print_list_w_indent(files)
-        if updatable:
+    if updatable:
+        if branch:
+            typer.echo(f"Commits for the same feature on branch {branch}")
+            get_commits_for_feature_on_other_branches(
+                feature_commits=commit_ids, other_branch=branch
+            )
+        else:
             typer.echo("Commits for the same feature on other branches")
             get_commits_for_feature_on_other_branches(
                 feature_commits=commit_ids
