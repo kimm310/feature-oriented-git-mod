@@ -78,7 +78,13 @@ def read_features_from_staged(type: str = "Union") -> list[str]:
     typer.echo("Use staged files")
 
     staged_files = get_files_by_git_change().get("staged_files", [])
-    feature_sets = [set(get_features_for_file(f)) for f in staged_files]
+    feature_sets = list(
+        set(
+            feature
+            for f in staged_files
+            for feature in get_features_for_file(f)
+        )
+    )
 
     if not feature_sets:
         return []

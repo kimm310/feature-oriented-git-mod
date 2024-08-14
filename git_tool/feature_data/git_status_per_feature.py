@@ -92,7 +92,7 @@ def get_features_for_file(
         return features
 
     commits = get_commits_for_file(file_name=file_path, branch_name=None)
-    with branch_folder_list() as feature_folders:
+    with branch_folder_list() as (feature_folders, _):
         for commit in commits:
             for feature in feature_folders:
                 feature_name = get_feature_name_from_folder(feature)
