@@ -7,6 +7,8 @@ import uuid
 from datetime import datetime
 from typing import Generator, Optional
 
+from git import Repo
+
 from git_tool.feature_data.models_and_context.fact_model import (
     get_fact_from_featurefile,
 )
@@ -93,3 +95,40 @@ def get_uuid_for_featurename(name: str) -> uuid.UUID:
         )
     # TODO this is not implemented correctly
     return name
+
+
+def get_current_branchname() -> str:
+    with repo_context() as repo:
+        return repo.active_branch
+
+
+def get_commits_for_feature_on_other_branches(
+    feature_commits: set[str], current_branch: str = get_current_branchname()
+) -> set[str]:
+    """
+    Find commits on other branches that affect the same feature but are not present on the current branch.
+
+    Args:
+        repo: The Git repository object.
+        feature_commits: A set of commit IDs associated with the feature.
+        current_branch: The name of the current branch.
+
+    Returns:
+        A set of commit IDs that are on other branches but not on the current branch.
+    """
+    with repo_context() as repo:
+        other_branches = [
+            branch for branch in repo.branches if branch.name != current_branch
+        ]
+    updatable_commits = set()
+
+    for branch in other_branches:
+        branch_commits = set(
+            repo.git.log(
+                f"{current_branch}..{branch.name}", "--pretty=%H"
+            ).splitlines()
+        )
+        common_commits = feature_commits & branch_commits
+        updatable_commits.update(common_commits)
+
+    return updatable_commits

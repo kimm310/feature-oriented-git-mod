@@ -1,5 +1,14 @@
 import typer
 
+from git_tool.feature_data.analyze_feature_data.feature_utils import (
+    get_commits_for_feature_on_other_branches,
+)
+from git_tool.feature_data.git_helper import (
+    get_author_for_commit,
+    get_branches_for_commit,
+    get_files_for_commit,
+)
+from git_tool.feature_data.git_status_per_feature import get_commits_for_feature
 from git_tool.feature_data.models_and_context.feature_state import (
     read_staged_featureset,
 )
@@ -41,21 +50,33 @@ def feature_info(
     Inspects feature information.
     """
     if currently_staged:
-        print(f"Currently staged {read_staged_featureset()}")
+        typer.echo("Currently staged")
+        print_list_w_indent(read_staged_featureset())
         return
     # print(
     #     f"Executing feature-info with all={all}, feature={feature}, authors={authors}, files={files}, updatable={updatable}, branch={branch}"
     # )
     if all:
-        print("All Features")
+        typer.echo("All Features")
         print_list_w_indent(_get_feature_uuids())
     elif feature:
-        print(f"Collecting information for feautre {feature}")
-        raise NotImplementedError
-    print("Structured output")
-    if branch:
-        raise NotImplementedError
-    if authors:
-        raise NotImplementedError
-    if files:
-        raise NotImplementedError
+        typer.echo(f"Collecting information for feature {feature}")
+        commit_ids = get_commits_for_feature(feature)
+        print_list_w_indent(commit_ids)
+        if branch:
+            typer.echo(f"Branches")
+            branches = set([get_branches_for_commit(c) for c in commit_ids])
+            print_list_w_indent(branches)
+        if authors:
+            typer.echo(f"Authors")
+            authors = set([get_author_for_commit(c) for c in commit_ids])
+            print_list_w_indent(authors)
+        if files:
+            typer.echo(f"Files")
+            files = set([get_files_for_commit(c) for c in commit_ids])
+            print_list_w_indent(files)
+        if updatable:
+            typer.echo("Commits for the same feature on other branches")
+            get_commits_for_feature_on_other_branches(
+                feature_commits=commit_ids
+            )
