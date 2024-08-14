@@ -22,5 +22,9 @@ def get_commits_for_file(
         if branch_name is None:
             branch_name = get_current_branch()
         commit_id_only = "--pretty=format:%H"
-        commits = repo.git.log(branch_name, commit_id_only, "--", file_name)
+        try:
+            commits = repo.git.log(branch_name, commit_id_only, "--", file_name)
+        except Exception:
+            # this happens for example if no commits exists
+            return []
         return commits.split("\n")
