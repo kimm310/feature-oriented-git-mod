@@ -157,4 +157,4 @@ def get_feature_name_from_folder(feature_folder: str) -> str:
         str: The name of the feature.
     """
     # Extract the feature name from the folder path
-    return feature_folder.split("/")[-1]
+    return str(feature_folder)

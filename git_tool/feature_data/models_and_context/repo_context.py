@@ -125,8 +125,7 @@ def branch_folder_list(
         try:
             feature_folders = repo.git.ls_tree(
                 "-d", "--name-only", branch
-            ).split()
-            feature_folders = map(Path, feature_folders)
+            ).split("\n")
             yield feature_folders, repo
         finally:
             pass
