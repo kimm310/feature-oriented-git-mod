@@ -15,7 +15,7 @@ app = typer.Typer()
 
 @app.command()
 def feature_add(
-    feature_names: list[str],
+    feature_names: list[str] = [],
     from_annotations: bool = typer.Option(
         False, help="Stage changes based on feature annotations"
     ),
@@ -36,12 +36,16 @@ def feature_add(
     """
     if isinstance(feature_names, str):
         feature_names = [feature_names]
-    if from_annotations:
+    elif from_annotations:
         typer.echo("use annotations")
+        typer.echo("This is not implemented yet", err=True)
         raise NotImplementedError
     elif from_staged:
         feature_names = read_features_from_staged()
     elif from_files:
+        if len(feature_names) == 0:
+            typer.echo("No features choosen, abort", err=True)
+            return
         if not stage_files(selected_files=from_files):
             return
     else:
