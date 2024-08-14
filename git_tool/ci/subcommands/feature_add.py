@@ -48,9 +48,6 @@ def feature_add(
             return
         if not stage_files(selected_files=from_files):
             return
-    else:
-        typer.echo("no specific option selected")
-        return
     if is_staging_area_empty():
         return
     create_feature_meta_info(
