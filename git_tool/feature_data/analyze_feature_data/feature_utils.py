@@ -122,9 +122,7 @@ def get_commits_for_feature_on_other_branches(
     with repo_context() as repo:
         if other_branch != "":
             other_branches = [
-                branch
-                for branch in repo.branches
-                if branch.name != current_branch
+                branch for branch in repo.branches if branch != current_branch
             ]
         else:
             other_branches = [other_branch]
@@ -133,10 +131,10 @@ def get_commits_for_feature_on_other_branches(
         for branch in other_branches:
             branch_commits = set(
                 repo.git.log(
-                    f"{current_branch}..{branch.name}", "--pretty=%H"
-                ).splitlines()
+                    f"{current_branch}..{branch}", "--pretty=%H"
+                ).split("\n")
             )
-            common_commits = feature_commits & branch_commits
+            common_commits = set(feature_commits) & branch_commits
             updatable_commits.update(common_commits)
 
         return updatable_commits
