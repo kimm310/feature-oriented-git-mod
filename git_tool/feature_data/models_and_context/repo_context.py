@@ -51,11 +51,13 @@ def create_empty_branch(branch_name: str, repo: git.Repo) -> str:
     fast_import_script = "\n".join(result)
 
     try:
-        with tempfile.NamedTemporaryFile(delete=False, mode="w") as temp_file:
+        with tempfile.NamedTemporaryFile(
+            delete=False, mode="w", encoding="utf-8", newline="\n"
+        ) as temp_file:
             temp_file.write(fast_import_script)
             temp_file_path = temp_file.name
 
-        with open(temp_file_path, "r") as file:
+        with open(temp_file_path, "r", encoding="utf-8") as file:
             repo.git.fast_import(istream=file)
             try:
                 repo.git.push("-u", "origin", branch_name)
