@@ -104,6 +104,10 @@ class AccumulatedCommitData(BaseModel):
                 )
         for change in self.add_files:
             result.append(f"M {change.permissions} inline {change.file_path}")
+            print(
+                "Fileline is ",
+                f"M {change.permissions} inline {change.file_path}",
+            )
             result.append(f"data {change.content_length}")
             result.append(change.content)
         return "\n".join(result)
