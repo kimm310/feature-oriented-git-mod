@@ -83,13 +83,13 @@ def ensure_feature_branch(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         repo = git.Repo(REPO_PATH)
-        print("Executing ensure feautre branch")
+        # print("Executing ensure feautre branch")
         if FEATURE_BRANCH_NAME not in repo.heads:
-            print(
-                f"Branch {FEATURE_BRANCH_NAME} existiert nicht. Erstelle neuen Branch ohne Eltern."
-            )
+            # print(
+            #     f"Branch {FEATURE_BRANCH_NAME} existiert nicht. Erstelle neuen Branch ohne Eltern."
+            # )
             create_empty_branch(FEATURE_BRANCH_NAME, repo)
-            print("new heads ", repo.heads)
+            # print("new heads ", repo.heads)
         return func(*args, **kwargs)
 
     return wrapper
