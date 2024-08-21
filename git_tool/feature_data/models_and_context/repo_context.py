@@ -52,12 +52,12 @@ def create_empty_branch(branch_name: str, repo: git.Repo) -> str:
 
     try:
         with tempfile.NamedTemporaryFile(
-            delete=False, mode="w", encoding="ascii", newline="\n"
+            delete=False, mode="w", encoding="utf-8", newline="\n"
         ) as temp_file:
             temp_file.write(fast_import_script)
             temp_file_path = temp_file.name
 
-        with open(temp_file_path, "r", encoding="ascii") as file:
+        with open(temp_file_path, "r", encoding="utf-8") as file:
             print(file.read())
             repo.git.fast_import(istream=file)
             try:
@@ -65,7 +65,7 @@ def create_empty_branch(branch_name: str, repo: git.Repo) -> str:
             except Exception:
                 ...
                 # If origin is not defined yet, I can't set an upstream. Will need to do this manually elsewhere
-        # print(f"Branch {branch_name} successfully created.")
+        print(f"Branch {branch_name} successfully created.")
     except Exception as e:
         print(f"Error while creating branch: {e}")
     finally:
@@ -83,18 +83,15 @@ def ensure_feature_branch(func):
 
     @wraps(func)
     def wrapper(*args, **kwargs):
-        if not wrapper.has_run:
-            repo = git.Repo(REPO_PATH)
-            # print("Executing ensure feautre branch")
-            if FEATURE_BRANCH_NAME not in repo.heads:
-                # print(
-                #     f"Branch {FEATURE_BRANCH_NAME} existiert nicht. Erstelle neuen Branch ohne Eltern."
-                # )
-                create_empty_branch(FEATURE_BRANCH_NAME, repo)
-            wrapper.has_run = True
+        repo = git.Repo(REPO_PATH)
+        # print("Executing ensure feautre branch")
+        if FEATURE_BRANCH_NAME not in repo.heads:
+            # print(
+            #     f"Branch {FEATURE_BRANCH_NAME} existiert nicht. Erstelle neuen Branch ohne Eltern."
+            # )
+            create_empty_branch(FEATURE_BRANCH_NAME, repo)
         return func(*args, **kwargs)
 
-    wrapper.has_run = False
     return wrapper
 
 
