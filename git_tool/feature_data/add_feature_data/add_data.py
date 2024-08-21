@@ -87,7 +87,9 @@ def add_fact_to_metadata_branch(
     commit_data = generate_fact_commit_data(fact, branch_name, commit_ref)
     fast_import_content = to_fast_import_format(commits=[commit_data])
     try:
-        with tempfile.NamedTemporaryFile(delete=False, mode="w") as temp_file:
+        with tempfile.NamedTemporaryFile(
+            delete=False, mode="w", encoding="utf-8", newline="\n"
+        ) as temp_file:
             temp_file.write(fast_import_content)
             temp_file_path = temp_file.name
 
