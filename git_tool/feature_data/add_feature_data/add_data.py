@@ -42,8 +42,10 @@ def generate_fact_file_path(fact: FeatureFactModel) -> list[Path]:
     fact_json = fact.model_dump_json()
     sha1_hash = hashlib.sha1(fact_json.encode("utf-8")).hexdigest()
     paths = [
-        Path(
-            f"{uuid}/{fact.commit}/{fact.date.isoformat(timespec='minutes')}-{sha1_hash[:7]}"
+        str(
+            Path(
+                f"{uuid}/{fact.commit}/{fact.date.isoformat(timespec='minutes').replace(':', '-')}-{sha1_hash[:7]}"
+            )
         )
         for uuid in feature_uuids
     ]
