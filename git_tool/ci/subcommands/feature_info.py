@@ -23,7 +23,7 @@ def print_list_w_indent(stuff: list, indent: int = 1) -> None:
         print("\t" * indent + item)
 
 
-app = typer.Typer()
+app = typer.Typer(help="Displaying feature information for the entire git repo")
 
 
 @app.command()
@@ -97,3 +97,7 @@ def feature_info(
     if all | ((not feature) & (not currently_staged)):
         typer.echo("All Features")
         print_list_w_indent(_get_feature_uuids())
+
+
+if __name__ == "__main__":
+    app()
