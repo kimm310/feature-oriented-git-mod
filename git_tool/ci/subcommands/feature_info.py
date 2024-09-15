@@ -25,14 +25,26 @@ def print_list_w_indent(stuff: list, indent: int = 1) -> None:
 
 app = typer.Typer(help="Displaying feature information for the entire git repo")
 
+info_app = typer.Typer(help="Inspect feature details")
+currently_staged_app = typer.Typer(
+    help="List all features that are touched by staged changes"
+)
+feature_specific_app = typer.Typer(help="Inspect a particular feature")
+app.add_typer(info_app, name="info")
+app.add_typer(currently_staged_app, name="currently-staged")
+app.add_typer(feature_specific_app, name="feature")
 
-@app.command()
-def feature_info(
-    all: bool = typer.Option(False, help="Get all features"),
-    currently_staged: bool = typer.Option(
-        False, help="List all features that are touched by staged changes"
-    ),
-    feature: str = typer.Option(None, help="Inspect a particular feature"),
+
+@currently_staged_app.command(name=None)
+def get_stuff():
+    typer.echo("Currently staged")
+    print_list_w_indent(read_staged_featureset())
+    return
+
+
+@feature_specific_app.command(name=None)
+def inspect_feature(
+    feature: str = typer.Argument(None, help="Inspect a particular feature"),
     authors: bool = typer.Option(
         False, help="Include authors in the inspection"
     ),
@@ -49,54 +61,53 @@ def feature_info(
         help="Specify branch for inspection that should be compared to the currently checked out branch",
     ),
 ):
+    typer.echo(f"Collecting information for feature {feature}")
+    try:
+        commit_ids = get_commits_for_feature(feature)
+        print_list_w_indent(commit_ids)
+    except Exception:
+        commit_ids = []
+        typer.echo(f"No commit-ids for feature {feature} found")
+    if branches:
+        typer.echo(f"Branches (* indicates current branch)")
+        branches = set(
+            [
+                branch
+                for c in commit_ids
+                for branch in get_branches_for_commit(c)
+            ]
+        )
+        print_list_w_indent(branches)
+    if authors:
+        typer.echo(f"Authors")
+        authors = set([get_author_for_commit(c) for c in commit_ids])
+        print_list_w_indent(authors)
+    if files:
+        typer.echo(f"Files")
+        files = set(
+            file for c in commit_ids for file in get_files_for_commit(c)
+        )
+        print_list_w_indent(files)
+    if updatable:
+        if branch:
+            typer.echo(f"Commits for the same feature on branch {branch}")
+            get_commits_for_feature_on_other_branches(
+                feature_commits=commit_ids, other_branch=branch
+            )
+        else:
+            typer.echo("Commits for the same feature on other branches")
+            get_commits_for_feature_on_other_branches(
+                feature_commits=commit_ids
+            )
+
+
+@app.command()
+def all_feature_info():
     """
     Inspects feature information.
     """
-    if currently_staged:
-        typer.echo("Currently staged")
-        print_list_w_indent(read_staged_featureset())
-        return
-    # print(
-    #     f"Executing feature-info with all={all}, feature={feature}, authors={authors}, files={files}, updatable={updatable}, branch={branch}"
-    # )
-    elif feature:
-        typer.echo(f"Collecting information for feature {feature}")
-        commit_ids = get_commits_for_feature(feature)
-        print_list_w_indent(commit_ids)
-        if branches:
-            typer.echo(f"Branches (* indicates current branch)")
-            branches = set(
-                [
-                    branch
-                    for c in commit_ids
-                    for branch in get_branches_for_commit(c)
-                ]
-            )
-            print_list_w_indent(branches)
-        if authors:
-            typer.echo(f"Authors")
-            authors = set([get_author_for_commit(c) for c in commit_ids])
-            print_list_w_indent(authors)
-        if files:
-            typer.echo(f"Files")
-            files = set(
-                file for c in commit_ids for file in get_files_for_commit(c)
-            )
-            print_list_w_indent(files)
-        if updatable:
-            if branch:
-                typer.echo(f"Commits for the same feature on branch {branch}")
-                get_commits_for_feature_on_other_branches(
-                    feature_commits=commit_ids, other_branch=branch
-                )
-            else:
-                typer.echo("Commits for the same feature on other branches")
-                get_commits_for_feature_on_other_branches(
-                    feature_commits=commit_ids
-                )
-    if all | ((not feature) & (not currently_staged)):
-        typer.echo("All Features")
-        print_list_w_indent(_get_feature_uuids())
+    typer.echo("All Features")
+    print_list_w_indent(_get_feature_uuids())
 
 
 if __name__ == "__main__":
