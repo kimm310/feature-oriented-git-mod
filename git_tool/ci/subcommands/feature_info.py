@@ -29,10 +29,8 @@ info_app = typer.Typer(help="Inspect feature details")
 currently_staged_app = typer.Typer(
     help="List all features that are touched by staged changes"
 )
-feature_specific_app = typer.Typer(help="Inspect a particular feature")
 app.add_typer(info_app, name="info")
 app.add_typer(currently_staged_app, name="currently-staged")
-app.add_typer(feature_specific_app, name="feature")
 
 
 @currently_staged_app.command(name=None)
@@ -42,7 +40,7 @@ def get_stuff():
     return
 
 
-@feature_specific_app.command(name=None)
+@app.command(name=None)
 def inspect_feature(
     feature: str = typer.Argument(None, help="Inspect a particular feature"),
     authors: bool = typer.Option(
@@ -101,7 +99,7 @@ def inspect_feature(
             )
 
 
-@app.command()
+@app.command(name=None)
 def all_feature_info():
     """
     Inspects feature information.
