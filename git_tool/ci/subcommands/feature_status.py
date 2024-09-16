@@ -113,6 +113,7 @@ def find_commits_without_feature(
     for commit in all_commits:
         if not is_commit_in_list(commit, feature_commits):
             commits_without_feature.append(commit)
+
     if message:
         commits_without_feature = [
             f"{commit}: {get_commit_title(commit)}"

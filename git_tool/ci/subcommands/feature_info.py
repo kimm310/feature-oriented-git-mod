@@ -93,7 +93,7 @@ def inspect_feature(
         )
         if branch:
             typer.echo(
-                f"Comparing commits for the feature '{feature}' on the current branch '{current_branch}' with branch '{branch}'"
+                f"Comparing commits for the feature '{feature}' on the current branch '{get_current_branchname()}' with branch '{branch}'"
             )
             try:
                 other_commits = get_commits_for_feature_on_other_branches(
@@ -105,7 +105,7 @@ def inspect_feature(
                     )
                     for commit in other_commits:
                         typer.echo(
-                            f"{commit.hexsha[:7]} - {commit.message.splitlines()[0]}"
+                            f"{commit.hexsha} - {commit.message.splitlines()[0]}"
                         )
 
                 else:

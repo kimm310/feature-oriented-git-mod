@@ -7,6 +7,8 @@ import uuid
 from datetime import datetime
 from typing import Generator, Optional
 
+from git import Commit
+
 from git_tool.feature_data.models_and_context.fact_model import (
     get_fact_from_featurefile,
 )
@@ -104,7 +106,7 @@ def get_commits_for_feature_on_other_branches(
     feature_commits: set[str],
     current_branch: str = get_current_branchname(),
     other_branch: str = "",
-) -> set[str]:
+) -> set[Commit]:
     """
     Find commits on other branches that affect the same feature but are not present on the current branch.
 
@@ -118,12 +120,18 @@ def get_commits_for_feature_on_other_branches(
         A set of commit IDs that are on other branches but not on the current branch.
     """
     with repo_context() as repo:
-        if other_branch != "":
-            other_branches = [
-                branch for branch in repo.branches if branch != current_branch
-            ]
-        else:
+        # Normalize the feature commits to full hashes if they are not already
+        feature_commits = set(
+            repo.git.rev_parse(commit) for commit in feature_commits
+        )
+        if other_branch:
             other_branches = [other_branch]
+        else:
+            other_branches = [
+                branch.name
+                for branch in repo.branches
+                if branch.name != current_branch
+            ]
         updatable_commits = set()
 
         for branch in other_branches:
@@ -132,10 +140,15 @@ def get_commits_for_feature_on_other_branches(
                     f"{current_branch}..{branch}", "--pretty=%H"
                 ).split("\n")
             )
-            common_commits = set(feature_commits) & branch_commits
-            updatable_commits.update(common_commits)
+            relevant_commits = branch_commits.intersection(feature_commits)
+            if relevant_commits:
+                updatable_commits.update(relevant_commits)
 
-        return updatable_commits
+        updatable_commit_objects = {
+            repo.commit(commit_hash) for commit_hash in updatable_commits
+        }
+
+        return updatable_commit_objects
 
 
 def get_all_features() -> list[str]:
