@@ -150,12 +150,10 @@ def get_yes_no_input(prompt: str) -> bool:
 def get_all_commits() -> list[str]:
     with repo_context() as repo:
         not_string = f"^refs/heads/{FEATURE_BRANCH_NAME}"
-        print(not_string)
         all_commits = repo.git.log(
             "--all", not_string, "--no-merges", "--pretty=format:%H"
         )
         commit_list = all_commits.splitlines()
-        print("Commit list", commit_list)
         return commit_list
 
 
