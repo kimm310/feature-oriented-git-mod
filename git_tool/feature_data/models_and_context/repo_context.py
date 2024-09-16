@@ -152,3 +152,8 @@ def get_all_commits() -> list[str]:
         all_commits = repo.git.log("--all", "--pretty=format:%H")
         commit_list = all_commits.splitlines()
         return commit_list
+
+
+def get_commit_title(commit_id: str) -> str:
+    with repo_context() as repo:
+        return repo.git.log("--oneline", commit_id)

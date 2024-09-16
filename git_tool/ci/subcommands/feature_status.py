@@ -13,6 +13,7 @@ from git_tool.feature_data.models_and_context.feature_state import (
 )
 from git_tool.feature_data.models_and_context.repo_context import (
     get_all_commits,
+    get_commit_title,
 )
 
 
@@ -89,7 +90,9 @@ def feature_status():
 
 
 @app.command()
-def find_commits_without_feature():
+def find_commits_without_feature(
+    message=typer.Option(default=False, help="Display title of commit")
+):
     """
     Find all commits that don't have any associated feature information.
     """
@@ -101,6 +104,12 @@ def find_commits_without_feature():
         commit for commit in all_commits if commit[:8] not in feature_commits
     ]
 
+    if message:
+        commits_without_feature = [
+            f"{commit}: {get_commit_title(commit)}"
+            for commit in commits_without_feature
+        ]
+
     if commits_without_feature:
         typer.echo("Commits without feature association:")
         for commit in commits_without_feature:
@@ -109,6 +118,7 @@ def find_commits_without_feature():
         typer.echo("All commits have feature associations.")
 
 
+@app.command()
 def find_commits_with_feature():
     feature_commits = get_commits_with_feature()
     typer.echo("Commits with feature association:")
