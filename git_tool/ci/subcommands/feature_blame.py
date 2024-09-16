@@ -34,8 +34,8 @@ def print_feature_blame_output(
         print(f"{feature:<15} {i:>4} {line.strip()}")
 
 
-@app.command()
-def feature_blame(filename: str, line_sta):
+@app.command(name=None, no_args_is_help=True)
+def feature_blame(filename: str):
     """
     Displays features associated with file lines.
     """

@@ -34,14 +34,14 @@ app.add_typer(info_app, name="info")
 app.add_typer(currently_staged_app, name="currently-staged")
 
 
-@currently_staged_app.command(name=None)
+@currently_staged_app.command(name=None, no_args_is_help=True)
 def get_stuff():
     typer.echo("Currently staged")
     print_list_w_indent(read_staged_featureset())
     return
 
 
-@app.command(name=None)
+@app.command(name=None, no_args_is_help=True)
 def inspect_feature(
     feature: str = typer.Argument(None, help="Inspect a particular feature"),
     authors: bool = typer.Option(
@@ -144,7 +144,7 @@ def inspect_feature(
                 )
 
 
-@app.command(name=None)
+@app.command(name=None, no_args_is_help=True)
 def all_feature_info():
     """
     Inspects feature information.
