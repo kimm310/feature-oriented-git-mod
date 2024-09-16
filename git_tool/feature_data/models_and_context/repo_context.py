@@ -161,3 +161,11 @@ def get_commit_title(commit_id: str) -> str:
     with repo_context() as repo:
         commit = repo.commit(commit_id)
         return commit.summary
+
+
+def get_current_branchname() -> str:
+    with repo_context() as repo:
+        try:
+            return repo.active_branch.name
+        except TypeError:
+            return "HEAD detached"

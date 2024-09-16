@@ -2,6 +2,7 @@ import typer
 
 from git_tool.feature_data.analyze_feature_data.feature_utils import (
     get_commits_for_feature_on_other_branches,
+    get_current_branchname,
 )
 from git_tool.feature_data.git_helper import (
     get_author_for_commit,
@@ -87,16 +88,60 @@ def inspect_feature(
         )
         print_list_w_indent(files)
     if updatable:
+        typer.echo(
+            f"Evaluating if feature {feature} can be updated on current branch {get_current_branchname()}"
+        )
         if branch:
-            typer.echo(f"Commits for the same feature on branch {branch}")
-            get_commits_for_feature_on_other_branches(
-                feature_commits=commit_ids, other_branch=branch
+            typer.echo(
+                f"Comparing commits for the feature '{feature}' on the current branch '{current_branch}' with branch '{branch}'"
             )
+            try:
+                other_commits = get_commits_for_feature_on_other_branches(
+                    feature_commits=commit_ids, other_branch=branch
+                )
+                if other_commits:
+                    typer.echo(
+                        f"Found {len(other_commits)} commits for feature '{feature}' on branch '{branch}'."
+                    )
+                    for commit in other_commits:
+                        typer.echo(
+                            f"{commit.hexsha[:7]} - {commit.message.splitlines()[0]}"
+                        )
+
+                else:
+                    typer.echo(
+                        f"No commits found for feature '{feature}' on branch '{branch}'."
+                    )
+            except Exception as e:
+                typer.secho(
+                    f"Error retrieving commits for branch '{branch}': {e}",
+                    fg=typer.colors.RED,
+                )
         else:
-            typer.echo("Commits for the same feature on other branches")
-            get_commits_for_feature_on_other_branches(
-                feature_commits=commit_ids
+            typer.echo(
+                f"Comparing commits for the feature '{feature}' on all other branches with the current branch '{get_current_branchname()}'"
             )
+            try:
+                other_commits = get_commits_for_feature_on_other_branches(
+                    feature_commits=commit_ids
+                )
+                if other_commits:
+                    typer.echo(
+                        f"Found {len(other_commits)} commits for feature '{feature}' on other branches."
+                    )
+                    for commit in other_commits:
+                        typer.echo(
+                            f"{commit.hexsha[:7]} - {commit.message.splitlines()[0]}"
+                        )
+                else:
+                    typer.echo(
+                        f"No commits found for feature '{feature}' on other branches."
+                    )
+            except Exception as e:
+                typer.secho(
+                    f"Error retrieving commits for other branches: {e}",
+                    fg=typer.colors.RED,
+                )
 
 
 @app.command(name=None)
