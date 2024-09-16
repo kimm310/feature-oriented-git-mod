@@ -14,32 +14,91 @@ from git_tool.finding_features import features_for_file_by_annotation
 app = typer.Typer()
 
 
-@app.command()
-def feature_add(
-    feature_names: list[str] = [],
-    from_annotations: bool = typer.Option(
+@app.command("by-add")
+def feature_add_by_add(
+    feature_names: list[str] = typer.Argument(
+        None, help="List of feature names to associate with the staged files"
+    ),
+    all_files: bool = typer.Option(
         False,
-        help="Stage all changes and information based on feature annotations",
+        "--all",
+        "-a",
+        help="Stage all tracked changes and associate with features",
     ),
-    from_files: list[str] = typer.Option(
-        [],
-        help="""Specify the set of files you want to annotate. Note that files listet that are not staged will be added to the staging area""",
-    ),
-    from_staged: bool = typer.Option(
-        False, help="Use the staged files only to add feature information"
-    ),
-    add_annotations: bool = typer.Option(
-        False,
-        help="Sets whether the changes will be grouped with feature annotations",
+    selected_files: list[str] = typer.Option(
+        None,
+        "--files",
+        "-f",
+        help="Specify a list of files to stage and associate with features",
     ),
 ):
     """
-    Stages changes for a specific feature.
+    Stage specific files or all files and associate them with the provided features.
     """
-    if isinstance(feature_names, str):
-        feature_names = [feature_names]
-    elif from_annotations:
-        typer.echo("use annotations")
+    if all_files:
+        typer.echo("Staging all files and associating with features")
+        # Logic to stage all files (e.g., repo.git.add("."))
+        stage_files(get_files_by_git_change().get("tracked_files", []))
+    elif selected_files:
+        typer.echo(f"Staging selected files: {selected_files}")
+        stage_files(selected_files)
+    else:
+        typer.echo("No files selected. Use --all or --files.", err=True)
+        return
+
+    if feature_names:
+        typer.echo(f"Associating features: {feature_names}")
+        # Logic to associate features with staged files
+    else:
+        typer.echo("No features provided.", err=True)
+
+
+@app.command("from-staged")
+def features_from_staging_area():
+    """
+    Use the staged files to add feature information.
+    """
+    feature_names = read_features_from_staged()
+    if feature_names:
+        typer.echo(f"Features in staging area: {feature_names}")
+        create_feature_meta_info(feature_names)
+    else:
+        typer.echo("No features found in staging area.", err=True)
+
+
+@app.command()
+def feature_add(
+    feature_names: list[str] = typer.Argument(
+        None, help="List of feature names to associate with the changes"
+    ),
+    from_annotations: bool = typer.Option(
+        False,
+        help="Stage all changes based on feature annotations.",
+    ),
+    from_files: list[str] = typer.Option(
+        None,
+        "--files",
+        "-f",
+        help="Specify a set of files to annotate. Files not staged will be added to the staging area.",
+    ),
+    from_staged: bool = typer.Option(
+        False,
+        "--staged",
+        "-s",
+        help="Use the staged files only to add feature information.",
+    ),
+    annotate: bool = typer.Option(
+        False,
+        "--annotate",
+        "-a",
+        help="Group the changes with feature annotations.",
+    ),
+):
+    """
+    Stages changes for a specific feature. You can select changes from annotations, files, or staged content.
+    """
+    if from_annotations:
+        typer.echo("Staging based on annotations")
         files = get_files_by_git_change().get(
             "unstaged_files", []
         ) + get_files_by_git_change().get("untracked_files", [])
@@ -49,33 +108,35 @@ def feature_add(
             for feature in features_for_file_by_annotation(file_name=file)
         ]
         stage_files(files)
-        feature_names = set(all_features)
+        feature_names = list(set(all_features))
     elif from_staged:
         feature_names = read_features_from_staged()
     elif from_files:
         if len(feature_names) == 0:
-            typer.echo("No features choosen, abort", err=True)
+            typer.echo("No features chosen, abort", err=True)
             return
         if not stage_files(selected_files=from_files):
             return
+
     if is_staging_area_empty():
         return
+
     create_feature_meta_info(
-        features=feature_names, insert_annotations=add_annotations
+        features=feature_names, insert_annotations=annotate
     )
 
 
 def read_features_from_staged(type: str = "Union") -> list[str]:
     """
-    Retrieve the features from the current staging area
+    Retrieve the features from the current staging area.
 
     Keyword Arguments:
         type -- Can be Union or Intersection. Describes how multiple features will be combined (default: {"Union"})
 
     Returns:
-        List of features
+        List of features.
     """
-    typer.echo("Use staged files")
+    typer.echo("Using staged files")
 
     staged_files = get_files_by_git_change().get("staged_files", [])
     feature_sets = list(
@@ -104,15 +165,14 @@ def read_features_from_staged(type: str = "Union") -> list[str]:
 def stage_files(selected_files: list[str]) -> bool:
     """
     Stage all selected files and return whether the staging area has changed.
-    If not, this indicates that no furhter feature things need do be done.
 
     Arguments:
         selected_files -- List of file identifiers that git understands for git add
 
     Returns:
-        Boolean whether there were acutally new staged changes
+        Boolean whether there were actually new staged changes.
     """
-    typer.echo("use files")
+    typer.echo("Staging files")
     with repo_context() as repo:
         for file in selected_files:
             try:
@@ -133,7 +193,7 @@ def stage_files(selected_files: list[str]) -> bool:
 
 
 def is_staging_area_empty() -> bool:
-    typer.echo("Check if there are staged files")
+    typer.echo("Checking if there are staged files")
     changes = get_files_by_git_change()
 
     if len(changes["staged_files"]) == 0:
@@ -153,3 +213,7 @@ def create_feature_meta_info(
     write_staged_featureset(features)
     if insert_annotations:
         typer.echo("Not adding annotations, not implemented yet", err=True)
+
+
+if __name__ == "__main__":
+    app()
