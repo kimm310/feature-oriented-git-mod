@@ -159,13 +159,12 @@ def get_commits_with_feature() -> list[str]:
     commit_ids = set()
 
     with repo_context() as repo:
-        # Iteriere über jedes Feature-Verzeichnis
         for feature in all_features:
-            # Hole die Liste der Unterordner oder Dateien im Feature-Verzeichnis
             feature_files = repo.git.ls_tree(
-                "-r", "--name-only", f"{FEATURE_BRANCH_NAME}:{feature}"
+                "-d", "--name-only", f"{FEATURE_BRANCH_NAME}:{feature}"
             ).splitlines()
 
             for commit_folder in feature_files:
                 commit_id = commit_folder
                 commit_ids.add(commit_id)
+    return list(commit_ids)
