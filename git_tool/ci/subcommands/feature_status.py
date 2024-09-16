@@ -107,3 +107,10 @@ def find_commits_without_feature():
             typer.echo(commit)
     else:
         typer.echo("All commits have feature associations.")
+
+
+def find_commits_with_feature():
+    feature_commits = get_commits_with_feature()
+    typer.echo("Commits with feature association:")
+    for commit in feature_commits:
+        typer.echo(commit)
