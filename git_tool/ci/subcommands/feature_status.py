@@ -92,7 +92,11 @@ def feature_status():
 def is_commit_in_list(commit_id: str, commit_id_list: list[str]) -> bool:
     for commit in commit_id_list:
         min_length = min(len(commit_id), len(commit))
-
+        print(
+            commit_id[:min_length],
+            commit[:min_length],
+            commit_id[:min_length] == commit[:min_length],
+        )
         if commit_id[:min_length] == commit[:min_length]:
             return True
 
