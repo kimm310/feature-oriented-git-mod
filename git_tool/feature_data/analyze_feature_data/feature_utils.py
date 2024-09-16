@@ -155,6 +155,13 @@ def get_all_features() -> list[str]:
 
 
 def get_commits_with_feature() -> list[str]:
+    """
+    Return a list of short ids of commits that are assoicated
+    with at least one feature.
+
+    Returns:
+        list[str]
+    """
     all_features = get_all_features()
     commit_ids = set()
 

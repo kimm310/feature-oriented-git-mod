@@ -96,8 +96,9 @@ def find_commits_without_feature():
     all_commits = get_all_commits()
     feature_commits = get_commits_with_feature()
 
+    # Use short commits as the feature-commits are all short
     commits_without_feature = [
-        commit for commit in all_commits if commit not in feature_commits
+        commit for commit in all_commits if commit[:8] not in feature_commits
     ]
 
     if commits_without_feature:
