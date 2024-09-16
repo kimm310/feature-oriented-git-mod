@@ -154,7 +154,7 @@ def get_all_features() -> list[str]:
         return folders
 
 
-def get_commits_with_feature() -> str[list]:
+def get_commits_with_feature() -> list[str]:
     all_features = get_all_features()
     commit_ids = set()
 
