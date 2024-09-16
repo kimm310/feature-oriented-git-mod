@@ -151,6 +151,7 @@ def get_all_features() -> list[str]:
             "-d", "--name-only", FEATURE_BRANCH_NAME
         )
         folders = folder_string.splitlines()
+        print("folders", folders)
         return folders
 
 

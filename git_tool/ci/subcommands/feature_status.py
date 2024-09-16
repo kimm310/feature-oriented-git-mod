@@ -108,7 +108,8 @@ def find_commits_without_feature(
     """
     all_commits = get_all_commits()
     feature_commits = get_commits_with_feature()
-
+    if not feature_commits:
+        return
     # Use short commits as the feature-commits are all short
     commits_without_feature = [
         commit
