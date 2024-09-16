@@ -92,11 +92,6 @@ def feature_status():
 def is_commit_in_list(commit_id: str, commit_id_list: list[str]) -> bool:
     for commit in commit_id_list:
         min_length = min(len(commit_id), len(commit))
-        print(
-            commit_id[:min_length],
-            commit[:min_length],
-            commit_id[:min_length] == commit[:min_length],
-        )
         if commit_id[:min_length] == commit[:min_length]:
             return True
 
@@ -114,13 +109,10 @@ def find_commits_without_feature(
     feature_commits = get_commits_with_feature()
     if not feature_commits:
         return
-    # Use short commits as the feature-commits are all short
-    commits_without_feature = [
-        commit
-        for commit in all_commits
-        if not is_commit_in_list(commit, feature_commits)
-    ]
-
+    commits_without_feature = []
+    for commit in all_commits:
+        if not is_commit_in_list(commit, feature_commits):
+            commits_without_feature.append(commit)
     if message:
         commits_without_feature = [
             f"{commit}: {get_commit_title(commit)}"
