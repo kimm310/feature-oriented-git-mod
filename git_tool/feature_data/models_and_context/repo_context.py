@@ -145,3 +145,10 @@ def get_yes_no_input(prompt: str) -> bool:
             return False
         else:
             print("Please enter 'yes' or 'no'.")
+
+
+def get_all_commits() -> list[str]:
+    with repo_context() as repo:
+        all_commits = repo.git.log("--all", "--pretty=format:%H")
+        commit_list = all_commits.splitlines()
+        return commit_list

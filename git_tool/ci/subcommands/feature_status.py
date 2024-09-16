@@ -1,12 +1,18 @@
 from collections import defaultdict
 import typer
 
+from git_tool.feature_data.analyze_feature_data.feature_utils import (
+    get_commits_with_feature,
+)
 from git_tool.feature_data.git_status_per_feature import (
     get_features_for_file,
     get_files_by_git_change,
 )
 from git_tool.feature_data.models_and_context.feature_state import (
     read_staged_featureset,
+)
+from git_tool.feature_data.models_and_context.repo_context import (
+    get_all_commits,
 )
 
 
@@ -80,3 +86,23 @@ def feature_status():
 
     if not printed:
         print("No changes.")
+
+
+@app.command()
+def find_commits_without_feature():
+    """
+    Find all commits that don't have any associated feature information.
+    """
+    all_commits = get_all_commits()
+    feature_commits = get_commits_with_feature()
+
+    commits_without_feature = [
+        commit for commit in all_commits if commit not in feature_commits
+    ]
+
+    if commits_without_feature:
+        typer.echo("Commits without feature association:")
+        for commit in commits_without_feature:
+            typer.echo(commit)
+    else:
+        typer.echo("All commits have feature associations.")

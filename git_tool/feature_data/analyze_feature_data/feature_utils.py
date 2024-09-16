@@ -136,3 +136,36 @@ def get_commits_for_feature_on_other_branches(
             updatable_commits.update(common_commits)
 
         return updatable_commits
+
+
+def get_all_features() -> list[str]:
+    """
+    Return list of all feature names. A feature name is equivalent to its folder name
+    on the top level of the feature-metadata branch
+
+    Returns:
+        list[str]: List of folder names (features) at the top level.
+    """
+    with repo_context() as repo:
+        folder_string = repo.git.ls_tree(
+            "-d", "--name-only", FEATURE_BRANCH_NAME
+        )
+        folders = folder_string.splitlines()
+        return folders
+
+
+def get_commits_with_feature() -> str[list]:
+    all_features = get_all_features()
+    commit_ids = set()
+
+    with repo_context() as repo:
+        # Iteriere über jedes Feature-Verzeichnis
+        for feature in all_features:
+            # Hole die Liste der Unterordner oder Dateien im Feature-Verzeichnis
+            feature_files = repo.git.ls_tree(
+                "-r", "--name-only", f"{FEATURE_BRANCH_NAME}:{feature}"
+            ).splitlines()
+
+            for commit_folder in feature_files:
+                commit_id = commit_folder
+                commit_ids.add(commit_id)
