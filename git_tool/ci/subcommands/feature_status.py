@@ -89,6 +89,16 @@ def feature_status():
         print("No changes.")
 
 
+def is_commit_in_list(commit_id: str, commit_id_list: list[str]) -> bool:
+    for commit in commit_id_list:
+        min_length = min(len(commit_id), len(commit))
+
+        if commit_id[:min_length] == commit[:min_length]:
+            return True
+
+    return False
+
+
 @app.command()
 def find_commits_without_feature(
     message=typer.Option(default=False, help="Display title of commit")
@@ -101,7 +111,9 @@ def find_commits_without_feature(
 
     # Use short commits as the feature-commits are all short
     commits_without_feature = [
-        commit for commit in all_commits if commit[:8] not in feature_commits
+        commit
+        for commit in all_commits
+        if not is_commit_in_list(commit, feature_commits)
     ]
 
     if message:
