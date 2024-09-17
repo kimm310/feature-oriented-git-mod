@@ -35,9 +35,16 @@ def print_feature_blame_output(
 
 
 @app.command()
-def feature_blame(filename: str, line_sta):
+def feature_blame(
+    filename: str = typer.Argument(
+        ..., help="The file to display feature blame for."
+    ),
+    line: str = typer.Option(
+        None, help="Specify a line or range of lines (e.g., '5' or '5-10')."
+    ),
+):
     """
-    Displays features associated with file lines.
+    Displays features associated with file lines. You can optionally specify a line or a range of lines.
     """
     file_path = Path(filename)
 
@@ -47,4 +54,24 @@ def feature_blame(filename: str, line_sta):
 
     lines = read_file_lines(file_path)
     feature_to_line_mapping = get_features_for_lines(file_path)
-    print_feature_blame_output(lines, feature_to_line_mapping)
+
+    # Default to the entire file if no line argument is provided
+    start_line = 1
+    end_line = len(lines)
+
+    if line:
+        if "-" in line:
+            # Handle a range of lines
+            start_line, end_line = map(int, line.split("-"))
+        else:
+            # Handle a single line
+            start_line = end_line = int(line)
+
+    # Ensure the line range is valid
+    if start_line < 1 or end_line > len(lines):
+        typer.echo("Error: Line number out of range.")
+        raise typer.Exit(code=1)
+
+    print_feature_blame_output(
+        lines, feature_to_line_mapping, start_line, end_line
+    )
