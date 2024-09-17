@@ -43,15 +43,15 @@ def feature_status():
         change_type: str, files: list[str], staged_features: list[str] = []
     ):
         feature_dict = group_files_by_feature(files)
-        print(f"{change_type.replace('_', ' ').title()}:")
+        typer.echo(f"{change_type.replace('_', ' ').title()}:")
         for feature, files in feature_dict.items():
-            print(f"\t{feature}:")
+            typer.echo(f"\t{feature}:")
             if feature == WITHOUT_FEATURE:
-                print(
+                typer.echo(
                     """\t (To assign a feature, run git feature-add <filename> <feature>)"""
                 )
             for file in files:
-                print(f"\t\t{file}")
+                typer.echo(f"\t\t{file}")
 
     printed = False
 
@@ -62,8 +62,8 @@ def feature_status():
         print(
             f"Staged Features (associated, but not staged features for a file are in parenthesis)"
         )
-        print(*staged_features, sep=",")
-        print("Feature changes to be committed")
+        typer.echo(*staged_features, sep=",")
+        typer.echo("Feature changes to be committed")
         for item in changes["staged_files"]:
             additional_features = get_features_for_file(item)
             unstaged_features = [
@@ -73,7 +73,7 @@ def feature_status():
                 non_staged_str = f" ({', '.join(unstaged_features)})"
             else:
                 non_staged_str = ""
-            print(f"\t{item} {non_staged_str}")
+            typer.echo(f"\t{item} {non_staged_str}")
 
     if len(changes.get("unstaged_files", [])) > 0:
         printed = True
@@ -86,7 +86,7 @@ def feature_status():
         print_changes("Untracked files", changes["untracked_files"])
 
     if not printed:
-        print("No changes.")
+        typer.echo("No changes.")
 
 
 def is_commit_in_list(commit_id: str, commit_id_list: list[str]) -> bool:

@@ -11,10 +11,10 @@ from git_tool.feature_data.models_and_context.feature_state import (
 from git_tool.feature_data.models_and_context.repo_context import repo_context
 from git_tool.finding_features import features_for_file_by_annotation
 
-app = typer.Typer()
+app = typer.Typer(no_args_is_help=True)
 
 
-@app.command("by-add")
+@app.command("by-add", no_args_is_help=True)
 def feature_add_by_add(
     feature_names: list[str] = typer.Argument(
         None, help="List of feature names to associate with the staged files"

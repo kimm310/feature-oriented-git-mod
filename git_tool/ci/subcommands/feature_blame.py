@@ -31,7 +31,7 @@ def print_feature_blame_output(
     """
     for i, line in enumerate(lines, 1):
         feature = features_by_line.get(i, "UNKNOWN")
-        print(f"{feature:<15} {i:>4} {line.strip()}")
+        typer.echo(f"{feature:<15} {i:>4} {line.strip()}")
 
 
 @app.command()

@@ -31,19 +31,21 @@ def feature_commit(
     This command is a plumbing command, usually this would be happening automatically when
     setting up git hooks.
     """
-    print("Step 1: select commit to assign information to")
-    print(f"\t Commit is {commit}")
-    print("Step 2: Select feature information")
+    typer.echo("Step 1: select commit to assign information to")
+    typer.echo(f"\t Commit is {commit}")
+    typer.echo("Step 2: Select feature information")
     if not features:
         staged_features = read_staged_featureset()
-        print(f"\t Selecting staged features {staged_features}")
+        typer.echo(f"\t Selecting staged features {staged_features}")
         if not staged_features:
-            print("No staged feature information available.")
+            typer.echo("No staged feature information available.")
             return
     else:
         staged_features = features
-        print(f"\t Selecting features from cli parameters {staged_features}")
-    print("Step 3: Add a feature meta commit on meta data branch")
+        typer.echo(
+            f"\t Selecting features from cli parameters {staged_features}"
+        )
+    typer.echo("Step 3: Add a feature meta commit on meta data branch")
     with repo_context() as repo:
         commit_obj = repo.commit(commit)
         feature_fact = FeatureFactModel(
@@ -57,7 +59,7 @@ def feature_commit(
         )
         # Add the fact to the metadata branch
         add_fact_to_metadata_branch(fact=feature_fact, commit_ref=commit_obj)
-        print("Feature meta commit added successfully.")
-    print("Step 4: Cleanup all information/ internal state stuff")
+        typer.echo("Feature meta commit added successfully.")
+    typer.echo("Step 4: Cleanup all information/ internal state stuff")
     reset_staged_featureset()
-    print("Feature commit process completed successfully.")
+    typer.echo("Feature commit process completed successfully.")

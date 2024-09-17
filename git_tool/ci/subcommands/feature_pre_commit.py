@@ -18,14 +18,14 @@ def feature_pre_commit():
     changes = get_files_by_git_change()
 
     if len(changes["staged_files"]) == 0:
-        print("Error: No staged changes found.")
+        typer.echo("Error: No staged changes found.")
         raise typer.Exit(code=1)
 
     staged_features = read_staged_featureset()
 
     if not staged_features:
-        print("Error: No features associated with the staged changes.")
+        typer.echo("Error: No features associated with the staged changes.")
         raise typer.Exit(code=1)
 
-    print("Pre-commit checks passed.")
+    typer.echo("Pre-commit checks passed.")
     raise typer.Exit(code=0)

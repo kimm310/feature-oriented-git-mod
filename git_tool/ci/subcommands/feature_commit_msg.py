@@ -16,9 +16,9 @@ def feature_commit_msg():
     staged_features = read_staged_featureset()
 
     if not staged_features:
-        print("No features associated with the staged changes.")
+        typer.echo("No features associated with the staged changes.")
         raise typer.Exit(code=1)
 
     feature_msg = f"Associated Features: {', '.join(staged_features)}"
 
-    print(feature_msg)
+    typer.echo(feature_msg)

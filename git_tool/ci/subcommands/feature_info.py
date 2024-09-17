@@ -21,10 +21,13 @@ from git_tool.feature_data.read_feature_data.parse_data import (
 
 def print_list_w_indent(stuff: list, indent: int = 1) -> None:
     for item in stuff:
-        print("\t" * indent + item)
+        typer.echo("\t" * indent + item)
 
 
-app = typer.Typer(help="Displaying feature information for the entire git repo")
+app = typer.Typer(
+    help="Displaying feature information for the entire git repo",
+    no_args_is_help=True,
+)
 
 info_app = typer.Typer(help="Inspect feature details")
 currently_staged_app = typer.Typer(
@@ -34,6 +37,7 @@ app.add_typer(info_app, name="info")
 app.add_typer(currently_staged_app, name="currently-staged")
 
 
+# TODO sollte zu git feature-status
 @currently_staged_app.command(name=None)
 def get_stuff():
     typer.echo("Currently staged")
