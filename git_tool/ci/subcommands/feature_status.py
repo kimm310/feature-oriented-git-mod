@@ -11,14 +11,30 @@ from git_tool.feature_data.models_and_context.feature_state import (
 
 WITHOUT_FEATURE = "Without Feature"
 
-app = typer.Typer(no_args_is_help=True, name=None)
+app = typer.Typer(
+    no_args_is_help=False,  # Allow running without arguments to show help
+    name=None,
+    help="Display the current status of staged, unstaged, and untracked files, \
+        along with their associated features.",
+)
 
 
-@app.command()
-def feature_status():
+@app.command(
+    help="Displays the current status of files in the working directory, showing staged, unstaged, and untracked changes along with their associated features. \
+    Files without associated features will be highlighted, and suggestions for adding features will be provided.",
+)
+def feature_status(
+    help: bool = typer.Option(
+        None, "--help", "-h", is_eager=True, help="Show this message and exit."
+    )
+):
     """
     Displays unstaged and staged changes with associated features.
     """
+    if help:
+        typer.echo(app.rich_help_panel)
+        raise typer.Exit()
+
     changes = get_files_by_git_change()
 
     def group_files_by_feature(files: list[str]):
@@ -51,11 +67,15 @@ def feature_status():
         printed = True
 
         staged_features = read_staged_featureset()
-        print(
+        typer.echo(
             f"Staged Features (associated, but not staged features for a file are in parenthesis)"
         )
-        typer.echo(*staged_features, sep=",")
-        typer.echo("Feature changes to be committed")
+        if staged_features:
+            typer.echo(", ".join(staged_features))
+        else:
+            typer.echo("No staged features.")
+
+        typer.echo("Feature changes to be committed:")
         for item in changes["staged_files"]:
             additional_features = get_features_for_file(item)
             unstaged_features = [
