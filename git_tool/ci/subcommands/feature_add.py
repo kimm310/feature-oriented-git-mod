@@ -1,19 +1,10 @@
-from datetime import datetime
 import typer
 
-from git_tool.feature_data.add_feature_data.add_data import (
-    add_fact_to_metadata_branch,
-)
 from git_tool.feature_data.git_status_per_feature import (
     get_features_for_file,
     get_files_by_git_change,
 )
-from git_tool.feature_data.models_and_context.fact_model import (
-    ChangeHolder,
-    FeatureFactModel,
-)
 from git_tool.feature_data.models_and_context.feature_state import (
-    read_staged_featureset,
     reset_staged_featureset,
     write_staged_featureset,
 )
@@ -63,21 +54,14 @@ def feature_add_by_add(
 
 
 @app.command("from-staged")
-def features_from_staging_area(
-    annotate: bool = typer.Option(
-        False,
-        "--annotate",
-        "-a",
-        help="Group the changes with feature annotations.",
-    ),
-):
+def features_from_staging_area():
     """
     Use the staged files to add feature information.
     """
     feature_names = read_features_from_staged()
     if feature_names:
         typer.echo(f"Features in staging area: {feature_names}")
-        create_feature_meta_info(feature_names, insert_annotations=annotate)
+        create_feature_meta_info(feature_names)
     else:
         typer.echo("No features found in staging area.", err=True)
 
@@ -96,6 +80,12 @@ def feature_add(
         "--files",
         "-f",
         help="Specify a set of files to annotate. Files not staged will be added to the staging area.",
+    ),
+    from_staged: bool = typer.Option(
+        False,
+        "--staged",
+        "-s",
+        help="Use the staged files only to add feature information.",
     ),
     annotate: bool = typer.Option(
         False,
@@ -119,6 +109,8 @@ def feature_add(
         ]
         stage_files(files)
         feature_names = list(set(all_features))
+    elif from_staged:
+        feature_names = read_features_from_staged()
     elif from_files:
         if len(feature_names) == 0:
             typer.echo("No features chosen, abort", err=True)
@@ -132,49 +124,6 @@ def feature_add(
     create_feature_meta_info(
         features=feature_names, insert_annotations=annotate
     )
-
-
-@app.command("to-existing-commit")
-def add_feature_to_existing_commit(
-    commit: str = typer.Argument(
-        ..., help="Commit ID to associate features with"
-    ),
-    features: list[str] = typer.Argument(
-        ..., help="Features to associate with the commit"
-    ),
-    force: bool = typer.Option(
-        False,
-        "--force",
-        "-f",
-        help="Force overwrite of existing staged features",
-    ),
-):
-    """
-    Associate feature information with a regular git commit.
-    This command is a plumbing command, usually this would be happening automatically when
-    setting up git hooks.
-    """
-    if read_staged_featureset() != []:
-        if not force:
-            typer.echo("There are already staged features, aborting.", err=True)
-            raise typer.Exit(1)
-        else:
-            typer.echo("Resetting temporary feature information")
-            reset_staged_featureset()
-    with repo_context() as repo:
-        commit_obj = repo.commit(commit)
-        feature_fact = FeatureFactModel(
-            commit=commit_obj.hexsha,
-            authors=[commit_obj.author.name],
-            date=datetime.now(),
-            features=features,
-            changes=ChangeHolder(
-                code_changes=[], constraint_changes=[], name_change=None
-            ),
-        )
-        add_fact_to_metadata_branch(fact=feature_fact, commit_ref=commit_obj)
-        typer.echo(f"Assign feature(s) {features} to {commit}")
-    reset_staged_featureset()
 
 
 def read_features_from_staged(type: str = "Union") -> list[str]:
