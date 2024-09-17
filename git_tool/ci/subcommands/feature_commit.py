@@ -15,15 +15,22 @@ from git_tool.feature_data.models_and_context.feature_state import (
 from git_tool.feature_data.models_and_context.repo_context import repo_context
 
 
-app = typer.Typer()
+app = typer.Typer(
+    no_args_is_help=True,
+    help="Associate an existing commit with one or more features",
+)
 
 
-@app.command()
+@app.command(name=None)
 def feature_commit(
-    commit: str,
+    commit: str = typer.Argument(
+        ...,
+        help="Provide the commit-id that the feature information should belong to.",
+    ),
     features: list[str] = typer.Option(
         None,
-        help="Add feature names manually. This ignores staged feature information",
+        help="Manually specify feature names. \
+            If this option is provided, staged feature information will be ignored.",
     ),
 ):
     """
@@ -38,14 +45,14 @@ def feature_commit(
         staged_features = read_staged_featureset()
         typer.echo(f"\t Selecting staged features {staged_features}")
         if not staged_features:
-            typer.echo("No staged feature information available.")
+            typer.echo("No staged feature information available.", err=True)
             return
     else:
         staged_features = features
         typer.echo(
             f"\t Selecting features from cli parameters {staged_features}"
         )
-    typer.echo("Step 3: Add a feature meta commit on meta data branch")
+    # typer.echo("Step 3: Add a feature meta commit on meta data branch")
     with repo_context() as repo:
         commit_obj = repo.commit(commit)
         feature_fact = FeatureFactModel(
@@ -60,6 +67,6 @@ def feature_commit(
         # Add the fact to the metadata branch
         add_fact_to_metadata_branch(fact=feature_fact, commit_ref=commit_obj)
         typer.echo("Feature meta commit added successfully.")
-    typer.echo("Step 4: Cleanup all information/ internal state stuff")
+    # typer.echo("Step 4: Cleanup all information/ internal state stuff")
     reset_staged_featureset()
-    typer.echo("Feature commit process completed successfully.")
+    # typer.echo("Feature commit process completed successfully.")
