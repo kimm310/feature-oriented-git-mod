@@ -43,6 +43,13 @@ def feature_commit(
     # typer.echo("Step 1: select commit to assign information to")
     # typer.echo(f"\t Commit is {commit}")
     # typer.echo("Step 2: Select feature information")
+    # test commit
+    with repo_context() as repo:
+        try:
+            commit_obj = repo.commit(commit)
+        except:
+            typer.echo("Invalid commit.", err=True)
+            return
     if not features:
         staged_features = read_staged_featureset()
         typer.echo(f"Selecting staged features {staged_features}")
@@ -54,7 +61,6 @@ def feature_commit(
         typer.echo(f"Selecting features from cli parameters {staged_features}")
     # typer.echo("Step 3: Add a feature meta commit on meta data branch")
     with repo_context() as repo:
-        commit_obj = repo.commit(commit)
         feature_fact = FeatureFactModel(
             commit=commit,
             authors=[commit_obj.author.name],
