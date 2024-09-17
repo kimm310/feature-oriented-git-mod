@@ -22,7 +22,9 @@ app = typer.Typer(
 
 
 @app.command(
-    name="commit", help="Associate an existing commit with one or more features"
+    name="commit",
+    help="Associate an existing commit with one or more features",
+    no_args_is_help=True,
 )
 def feature_commit(
     commit_id: str = typer.Argument(
@@ -31,7 +33,7 @@ def feature_commit(
     ),
     features: list[str] = typer.Option(
         None,
-        help="Manually specify feature names. \
+        help="Manually specify feature names. Each feature-name needs to be prefixed with --features <name>\
             If this option is provided, staged feature information will be ignored.",
     ),
 ):
