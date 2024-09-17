@@ -31,11 +31,17 @@ def find_commits_with_feature(
         return
 
     typer.echo("Commits with feature association:")
-    for commit in feature_commits:
-        if message:
-            typer.echo(f"{commit.hexsha}: {get_commit_title(commit)}")
-        else:
-            typer.echo(commit.hexsha)  # Output the full commit hash
+    with repo_context() as repo:
+        for commit in feature_commits:
+            try:
+                commit_obj = repo.commit(commit)
+            except:
+                typer.echo(f"Could not work with {commit}", err=True)
+                continue
+            if message:
+                typer.echo(f"{commit_obj.hexsha}: {get_commit_title(commit)}")
+            else:
+                typer.echo(commit_obj.hexsha)  # Output the full commit hash
 
 
 @app.command(name="missing")

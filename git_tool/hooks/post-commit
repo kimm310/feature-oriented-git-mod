@@ -1,6 +1,8 @@
 #!/bin/bash
 # Post-Commit Hook: Execute git feature-commit after each commit
 
+echo "Running feature-post-commit"
+
 COMMIT_ID=$(git rev-parse HEAD)
 git feature-commit $COMMIT_ID
 
