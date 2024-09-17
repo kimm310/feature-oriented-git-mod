@@ -1,17 +1,159 @@
-# feature-oriented-git
-## Exploring idea
 
-Sort Git Patches by Feature -> assign
+# Feature-oriented Git
 
-## Setup Project
+This tool provides advanced Git feature management, allowing you to associate feature information with commits and files.
+
+## Installation + Preaparation
+
+1. Install the tool using pip:
+    1. Download the latest release file (currently, the project is not stored in the PIP Index)
+    1. Install the tool using pip
+        ```bash
+        pip install <DownloadPath>/git-tool-<version>-py3-none-any.whl
+        ```
+1. In each Git repository where you want to track feature information, add the hooks provided by this project. This step is essential to ensure the internal state remains up-to-date. ***Each hook can only exist once. If you already have hooks, you need to manually copy the file contents instead***
+
+    1. **Find the tool's installation path**:
+        ```bash
+        pip show git-feature-tool
+        ```
+        Output example:
+        ```
+        Location: /path/to/your/python/site-packages/git_tool
+        ```
+    1. **Set the hooks path**:
+        ```bash
+        git config core.hooksPath /path/to/your/python/site-packages/git_tool/hooks
+        ```
+        This sets up Git to use the hooks from the specified directory.
+
+## Commands Overview
+
+### `git feature-status`
+
+Displays the current feature status, including staged, unstaged, and untracked files with their associated features.
+
+**Usage**:
+```bash
+git feature-status
 ```
-python3 -m venv env
-pip install -r requirements.txt
-pip install -r requirements.dev.txt # for dev purposes
+### `git feature-add`
+This command helps to associate feature information with a commit that does not yet exist. You can either add the information while adding the files or add features to the staging area.
+If you prefer to keep your workflows as usual and add feature information solely to commits that you already created, you don't need the git hooks and can jump to `git feature-commit`.
+
+#### `git feature-add by-add`
+
+Associates specified features with staged files. You can stage specific files or all tracked changes.
+
+**Options**:
+- `--all`, `-a`: Stages all tracked changes.
+- `--files`, `-f`: Specifies a list of files to stage and associate with features.
+
+**Usage**:
+```bash
+git feature-add by-add --all <feature-names>
+git feature-add by-add --files <file>... <feature-names>
 ```
 
-## Run Project
+#### `git feature-add from-staged`
+
+Uses staged files to associate them with feature information.
+
+**Usage**:
+```bash
+git feature-add from-staged
 ```
-python -m git_tool
+
+
+### `git feature-commit`
+Assign features to a commit retroactively. To find all commits that have not yet features assigned, see ---
+**Usage**:
+```bash
+git feature-commit <commit> <features>
 ```
-The entry point of the code is specified in the `__main__.py` file
+
+### `git feature-blame`
+
+Displays the feature associations for each line of a specified file, similar to `git blame`.
+
+**Usage**:
+```bash
+git feature-blame <file>
+```
+
+### `git feature-info`
+
+Displays detailed information about a feature, including associated commits, files, authors, and branches.
+
+**Options**:
+- `--authors`: Lists the authors who contributed to the feature.
+- `--files`: Lists the files associated with the feature.
+- `--branches`: Lists the branches where the feature is found.
+
+**Usage**:
+```bash
+git feature-info <feature>
+git feature-info <feature> --authors --files --branches
+```
+
+### `git feature-commits`
+
+Lists all commits associated with a feature or shows commits that are missing feature associations.
+
+**Options**:
+- `--missing`: Lists commits that do not have any associated feature.
+
+**Usage**:
+```bash
+git feature-commits
+git feature-commits --missing
+```
+
+---
+
+## Example Usage
+
+1. **Check Feature Status**:
+   ```bash
+   git feature-status
+   ```
+
+2. **Add Features to All Files**:
+   ```bash
+   git feature-add by-add --all "new-feature"
+   ```
+
+3. **Add Features to Specific Files**:
+   ```bash
+   git feature-add by-add --files src/main.py "feature-x"
+   ```
+
+4. **Use Staged Files for Feature Information**:
+   ```bash
+   git feature-add from-staged
+   ```
+
+5. **Show Feature Associations for a File**:
+   ```bash
+   git feature-blame src/main.py
+   ```
+
+6. **Display Feature Information**:
+   ```bash
+   git feature-info feature-x --authors --files --branches
+   ```
+
+7. **List All Commits With and Without Features**:
+   ```bash
+   git feature-commits
+   git feature-commits --missing
+   ```
+
+---
+
+For further details or to explore more usage options, refer to the [Typer Documentation](https://typer.tiangolo.com/tutorial/).
+
+
+
+## Development
+1. Create a virtual environment and install both requirement-files.
