@@ -4,7 +4,7 @@ authors = [{ name = "Tabea Röthemeyer", email = "tabea.roethemeyer@rub.de" }]
 license = { file = "LICENSE" }
 description = "Support feature-oriented development workflows with git"
 readme = "README.md"
-version = "0.0.52"
+version = "0.0.53"
 requires-python = ">=3.10"
 classifiers = [
   "Programming Language :: Python :: 3",
@@ -28,6 +28,7 @@ git-feature-blame = "git_tool.ci.subcommands.feature_blame:app"
 git-feature-commit = "git_tool.ci.subcommands.feature_commit:app"
 git-feature-commit-msg = "git_tool.ci.subcommands.feature_commit_msg:app"
 git-feature-pre-commit = "git_tool.ci.subcommands.feature_pre_commit:app"
+git-feature-commits = "it_tool.ci.subcommands.feature_commits:app"
 
 [build-system]
 requires = ["hatchling"]
