@@ -21,7 +21,9 @@ app = typer.Typer(
 )
 
 
-@app.command(name="commit")
+@app.command(
+    name="commit", help="Associate an existing commit with one or more features"
+)
 def feature_commit(
     commit: str = typer.Argument(
         ...,
