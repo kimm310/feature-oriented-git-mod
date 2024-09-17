@@ -4,7 +4,7 @@ authors = [{ name = "Tabea Röthemeyer", email = "tabea.roethemeyer@rub.de" }]
 license = { file = "LICENSE" }
 description = "Support feature-oriented development workflows with git"
 readme = "README.md"
-version = "0.0.61"
+version = "0.0.62"
 requires-python = ">=3.10"
 classifiers = [
   "Programming Language :: Python :: 3",
