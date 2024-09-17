@@ -67,13 +67,19 @@ def feature_status(
         printed = True
 
         staged_features = read_staged_featureset()
+        typer.echo("Staged Features: ")
         typer.echo(
-            f"Staged Features (associated, but not staged features for a file are in parenthesis)"
+            "\t(Features in parentheses are associated but not yet staged for the corresponding files)",
+            color="yellow",
         )
         if staged_features:
             typer.echo(", ".join(staged_features))
         else:
-            typer.echo("No staged features.")
+            typer.echo(
+                "No feature information found for the staged files. Please run 'git feature-add from-staged' \
+                    to associate features.",
+                err=True,
+            )
 
         typer.echo("Feature changes to be committed:")
         for item in changes["staged_files"]:
