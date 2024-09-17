@@ -10,10 +10,6 @@ from git_tool.feature_data.git_helper import (
     get_files_for_commit,
 )
 from git_tool.feature_data.git_status_per_feature import get_commits_for_feature
-from git_tool.feature_data.models_and_context.feature_state import (
-    read_staged_featureset,
-)
-from git_tool.feature_data.models_and_context.repo_context import repo_context
 from git_tool.feature_data.read_feature_data.parse_data import (
     _get_feature_uuids,
 )
@@ -29,39 +25,39 @@ app = typer.Typer(
     no_args_is_help=True,
 )
 
-info_app = typer.Typer(help="Inspect feature details")
-currently_staged_app = typer.Typer(
-    help="List all features that are touched by staged changes"
-)
-app.add_typer(info_app, name="info")
-app.add_typer(currently_staged_app, name="currently-staged")
+info_app = typer.Typer(help="Inspect feature details. This includes ")
+# app.add_typer(info_app, name="info")
+# app.add_typer(currently_staged_app, name="currently-staged")
 
 
 # TODO sollte zu git feature-status
-@currently_staged_app.command(name=None)
-def get_stuff():
-    typer.echo("Currently staged")
-    print_list_w_indent(read_staged_featureset())
-    return
+# @currently_staged_app.command(name=None)
+# def get_stuff():
+#     typer.echo("Currently staged")
+#     print_list_w_indent(read_staged_featureset())
+#     return
 
 
-@app.command(name=None)
+@app.command(name="feature", help="Show feature-specific information.")
 def inspect_feature(
-    feature: str = typer.Argument(None, help="Inspect a particular feature"),
+    feature: str = typer.Argument(..., help="Inspect a particular feature"),
     authors: bool = typer.Option(
-        False, help="Include authors in the inspection"
+        False, help="Show all authors who contributed to this feature."
     ),
-    files: bool = typer.Option(False, help="Include files in the inspection"),
+    files: bool = typer.Option(
+        False, help="List all files associated with the feature."
+    ),
     branches: bool = typer.Option(
-        False, help="Display all branches containing the feautre"
+        False, help="Show all branches where the feature is present."
     ),
     updatable: bool = typer.Option(
         False,
-        help="Display whether the feature can be updated and what update options there are",
+        help="Check if the feature has updates available on other branches and list the update options.",
     ),
     branch: str = typer.Option(
         None,
-        help="Specify branch for inspection that should be compared to the currently checked out branch",
+        help="Used with --updatable to specify a branch for checking updates. \
+            Ignored if --updatable is not set.",
     ),
 ):
     typer.echo(f"Collecting information for feature {feature}")
@@ -148,7 +144,11 @@ def inspect_feature(
                 )
 
 
-@app.command(name=None)
+@app.command(
+    name="all",
+    help="List all available features in the project. \
+        Use these names with 'git feature-info <feature>' to inspect details.",
+)
 def all_feature_info():
     """
     Inspects feature information.
