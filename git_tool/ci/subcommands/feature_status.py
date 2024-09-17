@@ -19,7 +19,7 @@ from git_tool.feature_data.models_and_context.repo_context import (
 
 WITHOUT_FEATURE = "Without Feature"
 
-app = typer.Typer()
+app = typer.Typer(no_args_is_help=True)
 
 
 @app.command()
