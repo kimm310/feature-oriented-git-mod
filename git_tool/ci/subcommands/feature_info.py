@@ -25,7 +25,9 @@ app = typer.Typer(
     no_args_is_help=True,
 )
 
-info_app = typer.Typer(help="Inspect feature details. This includes ")
+info_app = typer.Typer(
+    no_args_is_help=True, help="Inspect feature details. This includes "
+)
 # app.add_typer(info_app, name="info")
 # app.add_typer(currently_staged_app, name="currently-staged")
 

@@ -16,8 +16,8 @@ from git_tool.feature_data.models_and_context.repo_context import repo_context
 
 
 app = typer.Typer(
-    no_args_is_help=True,
     help="Associate an existing commit with one or more features",
+    no_args_is_help=True,
 )
 
 
@@ -25,7 +25,7 @@ app = typer.Typer(
     name="commit", help="Associate an existing commit with one or more features"
 )
 def feature_commit(
-    commit: str = typer.Argument(
+    commit_id: str = typer.Argument(
         ...,
         help="Provide the commit-id that the feature information should belong to.",
     ),
@@ -46,7 +46,7 @@ def feature_commit(
     # test commit
     with repo_context() as repo:
         try:
-            commit_obj = repo.commit(commit)
+            commit_obj = repo.commit(commit_id)
         except:
             typer.echo("Invalid commit.", err=True)
             return
@@ -62,7 +62,7 @@ def feature_commit(
     # typer.echo("Step 3: Add a feature meta commit on meta data branch")
     with repo_context() as repo:
         feature_fact = FeatureFactModel(
-            commit=commit,
+            commit=commit_id,
             authors=[commit_obj.author.name],
             date=datetime.now(),
             features=staged_features,
@@ -72,7 +72,7 @@ def feature_commit(
         )
         # Add the fact to the metadata branch
         add_fact_to_metadata_branch(fact=feature_fact, commit_ref=commit_obj)
-        typer.echo(f"Features {features} assigned to {commit}")
+        typer.echo(f"Features {features} assigned to {commit_id}")
     # typer.echo("Step 4: Cleanup all information/ internal state stuff")
     reset_staged_featureset()
     # typer.echo("Feature commit process completed successfully.")
