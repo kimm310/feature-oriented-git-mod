@@ -83,6 +83,10 @@ def ensure_feature_branch(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         repo = git.Repo(REPO_PATH)
+        try:
+            repo.git.fetch("origin", FEATURE_BRANCH_NAME)
+        except:
+            print("Origin does not have ", FEATURE_BRANCH_NAME)
         # print("Executing ensure feautre branch")
         if FEATURE_BRANCH_NAME not in repo.heads:
             # print(
