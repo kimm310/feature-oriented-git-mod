@@ -1,7 +1,7 @@
 from collections import namedtuple
 from typing import List, TypedDict
 
-from git import GitCommandError
+from git import Commit, GitCommandError
 from git_tool.feature_data.file_based_git_info import get_commits_for_file
 
 from git_tool.feature_data.models_and_context.repo_context import (
@@ -103,13 +103,13 @@ def get_features_for_file(
     return features
 
 
-def get_commits_for_feature(feature_uuid: str) -> list[str]:
+def get_commits_for_feature(feature_uuid: str) -> list[Commit]:
 
     with repo_context() as repo:
         output = repo.git.ls_tree(
             "-d", "--name-only", f"{FEATURE_BRANCH_NAME}:{feature_uuid}"
         )
-        return output.split("\n")
+        return [repo.commit(x) for x in output.split("\n")]
 
 
 def commit_in_feature_folder(commit: str, feature_folder: str) -> bool:
@@ -129,8 +129,9 @@ def commit_in_feature_folder(commit: str, feature_folder: str) -> bool:
     assert isinstance(
         feature_folder, str
     ), f"Expected feature_folder to be a string, but got {type(feature_folder).__name__}"
-
-    result = commit in get_commits_for_feature(feature_uuid=feature_folder)
+    with repo_context() as repo:
+        commit_obj =repo.commit(commit)
+    result = commit_obj.hexsha in [x.hexsha for x in get_commits_for_feature(feature_uuid=feature_folder)]
     return result
 
 
