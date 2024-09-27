@@ -32,8 +32,8 @@ def read_staged_featureset() -> List[str]:
     if not feature_file.exists():
         return []
     with feature_file.open(mode="r", encoding="utf-8") as f:
-        features = [line.strip() for line in f.readlines()]
-    return features
+        features = set(line.strip() for line in f.readlines())
+    return list(features)
 
 def write_staged_featureset(features: List[str]):
     """
