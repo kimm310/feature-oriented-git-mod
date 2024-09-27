@@ -31,7 +31,6 @@ def read_staged_featureset() -> List[str]:
     feature_file = get_feature_file()
     if not feature_file.exists():
         return []
-    print(feature_file.is_file(), feature_file.is_dir())
     with feature_file.open(mode="r", encoding="utf-8") as f:
         features = [line.strip() for line in f.readlines()]
     return features
