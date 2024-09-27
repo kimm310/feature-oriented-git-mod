@@ -147,13 +147,6 @@ def sync_feature_branch():
             return
 
         try:
-            print(f"Rebasing {FEATURE_BRANCH_NAME} onto {remote_name}/{FEATURE_BRANCH_NAME}")
-            repo.git.rebase(f"{remote_name}/{FEATURE_BRANCH_NAME}")
-        except Exception as e:
-            print(f"Error during rebase: {e}")
-            return
-
-        try:
             print(f"Pushing {FEATURE_BRANCH_NAME} to {remote_name}")
             repo.git.push(remote_name, FEATURE_BRANCH_NAME, '--force-with-lease')
         except Exception as e:
