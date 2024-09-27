@@ -85,7 +85,7 @@ def ensure_feature_branch(func):
     def wrapper(*args, **kwargs):
         global last_execution_time
         repo = git.Repo(REPO_PATH)
-        current_time = time.time()
+        current_time = time()
         # print("Executing ensure feautre branch")
         if last_execution_time is None or (current_time - last_execution_time > TIME_THRESHOLD):
             try:
