@@ -140,21 +140,21 @@ def sync_feature_branch():
     with repo_context() as repo:
         remote_name = "origin" 
         try:
-            # print(f"Fetching {FEATURE_BRANCH_NAME} from {remote_name}")
+            print(f"Fetching {FEATURE_BRANCH_NAME} from {remote_name}")
             repo.git.fetch(remote_name, FEATURE_BRANCH_NAME)
         except Exception as e:
             print(f"Error fetching the branch: {e}")
             return
 
         try:
-            # print(f"Rebasing {FEATURE_BRANCH_NAME} onto {remote_name}/{FEATURE_BRANCH_NAME}")
+            print(f"Rebasing {FEATURE_BRANCH_NAME} onto {remote_name}/{FEATURE_BRANCH_NAME}")
             repo.git.rebase(f"{remote_name}/{FEATURE_BRANCH_NAME}")
         except Exception as e:
             print(f"Error during rebase: {e}")
             return
 
         try:
-            # print(f"Pushing {FEATURE_BRANCH_NAME} to {remote_name}")
+            print(f"Pushing {FEATURE_BRANCH_NAME} to {remote_name}")
             repo.git.push(remote_name, FEATURE_BRANCH_NAME, '--force-with-lease')
         except Exception as e:
             print(f"Error pushing the branch: {e}")
