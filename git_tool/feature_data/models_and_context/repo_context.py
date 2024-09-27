@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, time
 import os
 import tempfile
 from contextlib import contextmanager
@@ -73,7 +73,8 @@ def create_empty_branch(branch_name: str, repo: git.Repo) -> str:
 
     return fast_import_script
 
-
+TIME_THRESHOLD = 300  # 5 minutes
+last_execution_time = None
 def ensure_feature_branch(func):
     """
     Decorator to ensure that the feature branch is created if it does not exist.
@@ -82,14 +83,17 @@ def ensure_feature_branch(func):
 
     @wraps(func)
     def wrapper(*args, **kwargs):
+        global last_execution_time
         repo = git.Repo(REPO_PATH)
+        current_time = time.time()
         # print("Executing ensure feautre branch")
-        try:
-            repo.git.fetch("origin", FEATURE_BRANCH_NAME)
-        except:
-            print("Origin does not have ", FEATURE_BRANCH_NAME)
-        if FEATURE_BRANCH_NAME not in repo.heads:
-            create_empty_branch(FEATURE_BRANCH_NAME, repo)
+        if last_execution_time is None or (current_time - last_execution_time > TIME_THRESHOLD):
+            try:
+                repo.git.fetch("origin", FEATURE_BRANCH_NAME)
+            except:
+                print("Origin does not have ", FEATURE_BRANCH_NAME)
+            if FEATURE_BRANCH_NAME not in repo.heads:
+                create_empty_branch(FEATURE_BRANCH_NAME, repo)
         return func(*args, **kwargs)
 
     return wrapper
