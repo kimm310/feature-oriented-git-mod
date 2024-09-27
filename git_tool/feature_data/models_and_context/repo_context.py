@@ -168,7 +168,7 @@ def sync_feature_branch():
 
         try:
             print(f"Pushing {FEATURE_BRANCH_NAME} to {remote_name}")
-            repo.git.push(remote_name, FEATURE_BRANCH_NAME, '--force-with-lease', '--allow-unrelated-histories')
+            repo.git.push(remote_name, FEATURE_BRANCH_NAME, force_with_lease=True)
         except Exception as e:
             print(f"Error pushing the branch: {e}")
 
