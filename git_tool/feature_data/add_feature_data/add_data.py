@@ -65,7 +65,7 @@ def generate_fact_commit_data(
         committer_email=(
             commit_ref.author.email if commit_ref is not None else ""
         ),
-        message=f"Generate fact for {str(commit_ref)}\n\nTouching features {",".join(fact.features)}",
+        message=f"Generate fact for {str(commit_ref)}\n\nTouching features {','.join(fact.features)}",
         add_files=[
             FastImportCommitData(
                 file_path=file,
