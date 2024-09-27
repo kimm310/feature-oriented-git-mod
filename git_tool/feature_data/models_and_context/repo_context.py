@@ -1,4 +1,4 @@
-from datetime import datetime, time
+from datetime import datetime, timedelta
 import os
 import tempfile
 from contextlib import contextmanager
@@ -8,6 +8,7 @@ from typing import Generator, Iterable, Tuple
 
 import git
 from dotenv import load_dotenv
+import typer
 
 load_dotenv(Path(__file__).parents[1].joinpath(".env").absolute())
 FEATURE_BRANCH_NAME = os.getenv("BRANCH_NAME", "feature-metadata")
@@ -73,8 +74,21 @@ def create_empty_branch(branch_name: str, repo: git.Repo) -> str:
 
     return fast_import_script
 
-TIME_THRESHOLD = 300  # 5 minutes
-last_execution_time = None
+HOME_DIR = os.path.expanduser("~")
+TIMESTAMP_FILE = os.path.join(HOME_DIR, ".feature_branch_timestamp.txt")
+def get_last_execution_time():
+    if os.path.exists(TIMESTAMP_FILE):
+        with open(TIMESTAMP_FILE, 'r') as f:
+            try:
+                return datetime.fromisoformat(f.read().strip())
+            except ValueError:
+                return None  
+    return None
+
+def update_last_execution_time():
+    with open(TIMESTAMP_FILE, 'w') as f:
+        f.write(datetime.now().isoformat())
+        
 def ensure_feature_branch(func):
     """
     Decorator to ensure that the feature branch is created if it does not exist.
@@ -83,12 +97,14 @@ def ensure_feature_branch(func):
 
     @wraps(func)
     def wrapper(*args, **kwargs):
-        global last_execution_time
+        last_execution_time = get_last_execution_time()
         repo = git.Repo(REPO_PATH)
-        current_time = time()
+        current_time = datetime.now()
         # print("Executing ensure feautre branch")
-        if last_execution_time is None or (current_time - last_execution_time > TIME_THRESHOLD):
+        if last_execution_time is None or ((current_time- last_execution_time) > timedelta(minutes=5)):
+            update_last_execution_time()
             try:
+                typer.echo("Fetching new feature-metadata")
                 repo.git.fetch("origin", FEATURE_BRANCH_NAME)
             except:
                 print("Origin does not have ", FEATURE_BRANCH_NAME)
