@@ -103,13 +103,18 @@ def ensure_feature_branch(func):
         # print("Executing ensure feautre branch")
         if last_execution_time is None or ((current_time- last_execution_time) > timedelta(minutes=5)):
             update_last_execution_time()
+            if FEATURE_BRANCH_NAME not in repo.heads:
+                try:
+                    repo.git.branch(FEATURE_BRANCH_NAME, f"origin/{FEATURE_BRANCH_NAME}")
+                    typer.echo(f"Branch {FEATURE_BRANCH_NAME} created locally from origin.")
+                except git.GitCommandError:
+                    typer.echo(f"Branch {FEATURE_BRANCH_NAME} does not exist on origin. Creating an empty branch.")
+                    create_empty_branch(FEATURE_BRANCH_NAME, repo)
             try:
                 typer.echo("Fetching new feature-metadata")
                 repo.git.fetch("origin", FEATURE_BRANCH_NAME)
             except:
                 print("Origin does not have ", FEATURE_BRANCH_NAME)
-            if FEATURE_BRANCH_NAME not in repo.heads:
-                create_empty_branch(FEATURE_BRANCH_NAME, repo)
         return func(*args, **kwargs)
 
     return wrapper

@@ -24,8 +24,8 @@ def feature_pre_commit():
     staged_features = read_staged_featureset()
 
     if not staged_features:
-        typer.echo("Error: No features associated with the staged changes.")
-        raise typer.Exit(code=1)
+        typer.echo("Warning: No features associated with the staged changes. Remember to use git feature-commit to add these information")
+        raise typer.Exit(code=0)
 
     typer.echo("Pre-commit checks passed.")
     raise typer.Exit(code=0)
