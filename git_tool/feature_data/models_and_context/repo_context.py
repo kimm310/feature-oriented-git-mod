@@ -175,7 +175,8 @@ def sync_feature_branch():
             print(f"Pushing {FEATURE_BRANCH_NAME} to {remote_name}")
             repo.git.push(remote_name, FEATURE_BRANCH_NAME, force_with_lease=True)
         except Exception as e:
-            print(f"Error pushing the branch: {e}")
+            # print(f"Error pushing the branch: {e}")
+            print("Warning: Feature Updates could not be pushed to remote")
 
 
 def get_yes_no_input(prompt: str) -> bool:
