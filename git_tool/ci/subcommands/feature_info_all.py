@@ -8,7 +8,7 @@ from git_tool.feature_data.read_feature_data.parse_data import (
 app = typer.Typer()
 
 
-@app.command(name="info-all", help="List all available features in the project.")
+@app.command(name="info-all")
 def all_feature_info():
     """
     Inspects feature information.

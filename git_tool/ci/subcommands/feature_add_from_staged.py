@@ -13,7 +13,7 @@ from git_tool.feature_data.models_and_context.feature_state import (
 app = typer.Typer()
 
 
-@app.command("add-from-staged", help="Associate staged files with features")
+@app.command(name="add-from-staged")
 def features_from_staging_area():
     """
     Use the staged files to add feature information.

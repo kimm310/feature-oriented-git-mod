@@ -28,7 +28,7 @@ app = typer.Typer(help="Displaying feature information for the entire git repo",
 #     return
 
 
-@app.command(name="info", help="Show feature-specific information.")
+@app.command(name="info")
 def inspect_feature(
     feature: str = typer.Argument(..., help="Inspect a particular feature"),
     authors: bool = typer.Option(
