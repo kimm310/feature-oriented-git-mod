@@ -103,7 +103,7 @@ def print_feature_blame_output(
         typer.echo(f"{feature:<15} {i:>4} {line.strip()}")
 
 
-@app.command(no_args_is_help=True, name=None)
+@app.command(help="Display features associated with file lines.", no_args_is_help=True, name=None)
 def feature_blame(
     filename: str = typer.Argument(
         ..., help="The file to display feature blame for."
