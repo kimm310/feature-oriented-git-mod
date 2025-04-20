@@ -2127,7 +2127,7 @@
 <em>git feature commits list</em>
 <em>git feature commits missing</em>
 <em>git feature blame</em> &lt;file_name&gt;
-<em>git feature info-all</em> [--push] &lt;name&gt; &lt;newurl&gt; [&lt;oldurl&gt;]
+<em>git feature info-all</em>
 <em>git feature info</em> [--authors | --files | --branches | --updatable | --branch &lt;branch_name&gt;]</pre>
             </div>
         </div>
@@ -2228,7 +2228,7 @@
             <div class="ulist">
                 <ul>
                     <li>
-                        <p>Assess the file location for feature <code>authentication</code>, inspect its commit history, and list its authors</p>
+                        <p>Assess the file location for feature <code>"authentication"</code>, inspect its commit history, and list its authors</p>
                         <div class="listingblock">
                             <div class="content">
 <pre>$ git feature info "authentication" --files
@@ -2260,14 +2260,14 @@ $ git feature info "authentication" --authors
                         </div>
                     </li>
                     <li>
-                        <p>Analyze and stage changes, associate with feature <code>add</code> and commit the changes</p>
+                        <p>Analyze and stage changes, associate with feature <code>"core"</code> and commit the changes</p>
                         <div class="listingblock">
                             <div class="content">
 <pre>$ git feature status
     Unstaged changes:
         src/main.py [add]
         src/operations.py [subtract, add]
-        src/utils.py [core]
+        src/utils.py
 
 $ git feature add "core" --file src/utils.py
     Feature 'core' associated with staged changes.

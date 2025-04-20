@@ -22,6 +22,7 @@ dependencies = [
 
 [project.scripts]
 git-feature = "git_tool.__main__.py:app"
+feature-install-help = "git_tool.helpdoc.install_help:main"
 
 [build-system]
 requires = ["hatchling"]
