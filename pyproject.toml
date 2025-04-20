@@ -22,6 +22,7 @@ dependencies = [
 
 [project.scripts]
 git-feature = "git_tool.__main__.py:app"
+feature-init-hooks = "git_tool.scripts_for_experiment.set_hooks_path:main"
 
 [build-system]
 requires = ["hatchling"]
