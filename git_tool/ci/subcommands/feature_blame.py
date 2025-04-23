@@ -2,6 +2,7 @@ from pathlib import Path
 import typer
 from git import Repo
 from git_tool.feature_data.git_status_per_feature import get_features_for_file
+from git_tool.feature_data.read_feature_data.parse_data import get_features_touched_by_commit
 from git_tool.feature_data.models_and_context.repo_context import (
     repo_context,
 )  # Assuming this exists in your code
@@ -24,6 +25,7 @@ def run_git_blame(
     Uses gitpython's blame functionality to map line numbers to commit hashes.
     This function works on the specified range of lines.
     """
+    '''
     blame_output = repo.git.blame(
         "-L", f"{start_line},{end_line}", "--line-porcelain", str(file_path)
     )
@@ -48,6 +50,26 @@ def run_git_blame(
             line_number += 1
         else:
             current_commit = line.split()[0]
+    '''
+
+    blame_output = repo.git.blame(
+        "-L", f"{start_line},{end_line}", str(file_path)
+    )
+
+    line_to_commit = {}
+    current_commit = None
+    line_number = start_line
+    for line in blame_output.splitlines():
+
+        if line.startswith(":"):
+            continue
+        if line.startswith("..."):
+            continue
+
+        temp = line.split(' ')
+        full_hash = repo.git.rev_parse(temp[0])
+        line_to_commit[line_number] = full_hash
+        line_number += 1
 
     return line_to_commit
 
@@ -75,15 +97,18 @@ def get_features_for_lines(
     """
     # Step 1: Get the commit for each line using 'git blame'
     line_to_commit = run_git_blame(repo, file_path, start_line, end_line)
+    typer.echo(f"Step 1 (line_to_commit): {line_to_commit}")
 
     # Step 2: Get the mapping of commits to features
     commit_to_feature = get_commit_feature_mapping()
+    typer.echo(f"Step 2 (commit_to_feature): {commit_to_feature}")
 
     # Step 3: Map each line to its corresponding feature
     line_to_feature = {
         line: commit_to_feature.get(commit_hash, "UNKNOWN")
         for line, commit_hash in line_to_commit.items()
     }
+    typer.echo(f"Step 3 (line_to_feature): {line_to_feature}")
 
     return line_to_feature
 
@@ -123,40 +148,42 @@ def feature_blame(
     file_features = get_features_for_file(
         file_path=file_path, use_annotations=False
     )
-    typer.echo(f"Features associated with the file '{filename}':\n")
-    for i, feature in enumerate(file_features, 1):
-        typer.echo(f"{i}. {feature}")
+    #typer.echo(f"Features associated with the file '{filename}':\n")
+    #for i, feature in enumerate(file_features, 1):
+    #    typer.echo(f"{i}. {feature}")
+
+    # Read the file contents
+    lines = read_file_lines(file_path)
+
+    # Default to the entire file if no line argument is provided
+    start_line = 1
+    end_line = len(lines)
 
     if line:
-        typer.echo("Linebased blames are not supported yet", err=True)
-        return
-        lines = read_file_lines(file_path)
+        if "-" in line:
+            # Handle a range of lines
+            start_line, end_line = map(int, line.split("-"))
+        else:
+            # Handle a single line
+            start_line = end_line = int(line)
 
-        # Default to the entire file if no line argument is provided
-        start_line = 1
-        end_line = len(lines)
+    # Ensure the line range is valid
+    if start_line < 1 or end_line > len(lines):
+        typer.echo("Error: Line number out of range.")
+        raise typer.Exit(code=1)
 
-        if line:
-            if "-" in line:
-                # Handle a range of lines
-                start_line, end_line = map(int, line.split("-"))
-            else:
-                # Handle a single line
-                start_line = end_line = int(line)
+    if start_line > end_line:
+        typer.echo("Error: Start line must be less than end line.")
+        raise typer.Exit(code=1)
 
-        # Ensure the line range is valid
-        if start_line < 1 or end_line > len(lines):
-            typer.echo("Error: Line number out of range.")
-            raise typer.Exit(code=1)
-
-        with repo_context() as repo:  # Use repo_context for the git operations
-            feature_to_line_mapping = get_features_for_lines(
-                repo, file_path, start_line, end_line
-            )
-
-        print_feature_blame_output(
-            lines, feature_to_line_mapping, start_line, end_line
+    with repo_context() as repo:  # Use repo_context for the git operations
+        feature_to_line_mapping = get_features_for_lines(
+            repo, file_path, start_line, end_line
         )
+
+    print_feature_blame_output(
+        lines, feature_to_line_mapping, start_line, end_line
+    )
 
 
 if __name__ == "__main__":
