@@ -57,35 +57,40 @@ def run_git_blame(
     )
 
     line_to_commit = {}
-    current_commit = None
     line_number = start_line
     for line in blame_output.splitlines():
 
         if line.startswith(":"):
             continue
-        if line.startswith("..."):
-            continue
 
-        temp = line.split(' ')
-        full_hash = repo.git.rev_parse(temp[0])
-        line_to_commit[line_number] = full_hash
+        temp = line.split(" ")
+        short_hash = temp[0]
+        full_hash = repo.git.rev_parse(short_hash)
+        line_to_commit[line_number] = short_hash
         line_number += 1
 
     return line_to_commit
 
 
-def get_commit_feature_mapping() -> dict[str, str]:
+def get_commit_feature_mapping(line_to_commit: dict[int, str]) -> dict[str, str]:
     """
     Returns a mapping of commit hashes to features.
     This is a placeholder for your actual implementation, where you'd
     map each commit hash to its associated feature.
     """
-    # Example mapping: Replace with your real data source
-    return {
-        "abcd123": "Feature A",
-        "efgh456": "Feature B",
-        "ijkl789": "Feature C",
-    }
+    seen = set()
+    unique_commits = []
+    features_per_commit = {}
+
+    for commit_id in line_to_commit.values():
+        if commit_id not in seen:
+            seen.add(commit_id)
+            unique_commits.append(commit_id)
+
+    for commit_id in unique_commits:
+        features_per_commit[commit_id] = ", ".join(get_features_touched_by_commit(commit_id))
+
+    return features_per_commit
 
 
 def get_features_for_lines(
@@ -97,18 +102,15 @@ def get_features_for_lines(
     """
     # Step 1: Get the commit for each line using 'git blame'
     line_to_commit = run_git_blame(repo, file_path, start_line, end_line)
-    typer.echo(f"Step 1 (line_to_commit): {line_to_commit}")
 
     # Step 2: Get the mapping of commits to features
-    commit_to_feature = get_commit_feature_mapping()
-    typer.echo(f"Step 2 (commit_to_feature): {commit_to_feature}")
+    commit_to_feature = get_commit_feature_mapping(line_to_commit)
 
     # Step 3: Map each line to its corresponding feature
     line_to_feature = {
         line: commit_to_feature.get(commit_hash, "UNKNOWN")
         for line, commit_hash in line_to_commit.items()
     }
-    typer.echo(f"Step 3 (line_to_feature): {line_to_feature}")
 
     return line_to_feature
 
