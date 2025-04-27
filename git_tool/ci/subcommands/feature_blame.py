@@ -127,7 +127,7 @@ def print_feature_blame_output(
     for i in range(start_line, end_line + 1):
         line = lines[i - 1]  # Adjust for 0-based indexing
         feature = features_by_line.get(i, "UNKNOWN")
-        typer.echo(f"{feature:<15} {i:>4} {line.strip()}")
+        typer.echo(f"{feature:<15} {i:>4} {line.rstrip()}")
 
 
 @app.command(help="Display features associated with file lines.", no_args_is_help=True, name=None)
