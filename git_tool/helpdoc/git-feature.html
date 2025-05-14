@@ -2300,6 +2300,17 @@ $ git feature commit "core" abc1234
                             </div>
                         </div>
                     </li>
+                    <li>
+                        <p>You find an odd code snippet. Find out the author and which feature it's associated with.</p>
+                        <div class="listingblock">
+                            <div class="content">
+<pre>$ git feature blame --line 3-4
+    op-select, core (abcd123 Jane Doe 2024-09-10 11) #weird code
+    op-select, core (abcd123 Jane Doe 2024-09-10 12) #more nonsense
+</pre>
+                            </div>
+                        </div>
+                    </li>
                 </ul>
             </div>
         </div>
